@@ -48,25 +48,17 @@ public class UserServices {
     }
 
     public String register(UserProfile user){
-        // Check if email already exists
         if (userProfileRepository.findByEmail(user.getEmail()).isPresent()) {
             return "Email already exists";
         }
 
-        // Set the specialization to ID 43 for now
         SpecializationEntity specialization = specializationRepository.findById(43)
                 .orElseThrow(() -> new RuntimeException("Specialization not found"));
 
         user.setSpecialization(specialization);
 
-
-        // Hash the password
         user.setPassword(passwordEncoder.encode(user.getPassword()));
-
-        // Set joined date
         user.setJoinedDate(LocalDate.now());
-
-        // Save user
         userProfileRepository.save(user);
 
         return "User registered successfully";
