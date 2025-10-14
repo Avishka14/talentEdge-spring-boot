@@ -47,22 +47,33 @@ public class UserServices {
 
     }
 
-    public String register(UserProfile user){
+    public String register(UserProfile user) {
+        // Check if email already exists
         if (userProfileRepository.findByEmail(user.getEmail()).isPresent()) {
             return "Email already exists";
         }
 
-        SpecializationEntity specialization = specializationRepository.findById(43)
+        // Make sure the request contains a specialization ID
+        if (user.getSpecialization() == null) {
+            throw new RuntimeException("Specialization is required");
+        }
+
+        // Fetch the specialization entity from DB
+        SpecializationEntity specialization = specializationRepository
+                .findById(user.getSpecialization().getId())
                 .orElseThrow(() -> new RuntimeException("Specialization not found"));
 
+        // Set specialization, encode password, set join date
         user.setSpecialization(specialization);
-
         user.setPassword(passwordEncoder.encode(user.getPassword()));
         user.setJoinedDate(LocalDate.now());
+
+        // Save user
         userProfileRepository.save(user);
 
         return "User registered successfully";
     }
+
 
 }
 
