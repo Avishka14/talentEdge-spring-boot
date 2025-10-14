@@ -27,6 +27,8 @@ public class UserProfile {
     @Column(unique = true)
     private String email;
 
+    private String password;
+
     @ManyToOne
     @JoinColumn(name = "specializationentity_id")
     private SpecializationEntity specialization;
