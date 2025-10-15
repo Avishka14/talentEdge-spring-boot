@@ -33,10 +33,6 @@ public class UserProfile {
     @JoinColumn(name = "specializationentity_id")
     private SpecializationEntity specialization;
 
-    @ElementCollection
-    @CollectionTable(name = "user_education", joinColumns = @JoinColumn(name = "user_id"))
-    @Column(name = "education")
-    private List<String> educationList;
 
     @ElementCollection
     @CollectionTable(name = "user_experience", joinColumns = @JoinColumn(name = "user_id"))
