@@ -45,7 +45,6 @@ public class UniversityService {
                     params
             );
 
-
             if (response.getStatusCode().is2xxSuccessful() && response.getBody() != null) {
                 return response.getBody();
             } else {
@@ -59,11 +58,9 @@ public class UniversityService {
     }
 
     public UniversityEntity saveUniversity(UniDTO dto) {
-        // Fetch the user by ID
         UserProfile user = userProfileRepository.findById(dto.getUserId())
                 .orElseThrow(() -> new RuntimeException("User not found with id: " + dto.getUserId()));
 
-        // Map DTO to Entity
         UniversityEntity university = UniversityEntity.builder()
                 .user(user)
                 .degree(dto.getDegree())
@@ -74,6 +71,8 @@ public class UniversityService {
 
         return universityRepository.save(university);
     }
+
+
 
 
 }
