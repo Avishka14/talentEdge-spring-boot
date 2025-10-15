@@ -1,6 +1,11 @@
 package com.talentEdge.service;
 
+import com.talentEdge.dto.UniDTO;
 import com.talentEdge.model.University;
+import com.talentEdge.model.UniversityEntity;
+import com.talentEdge.model.UserProfile;
+import com.talentEdge.repo.UniversityRepository;
+import com.talentEdge.repo.UserProfileRepository;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
@@ -15,11 +20,15 @@ import java.util.Map;
 public class UniversityService {
 
     private final RestTemplate restTemplate;
+    private final UniversityRepository universityRepository;
+    private final UserProfileRepository userProfileRepository;
 
     private static final String BASE_URL = "http://universities.hipolabs.com";
 
-    public UniversityService(RestTemplate restTemplate) {
+    public UniversityService(RestTemplate restTemplate, UniversityRepository universityRepository, UserProfileRepository userProfileRepository) {
         this.restTemplate = restTemplate;
+        this.universityRepository = universityRepository;
+        this.userProfileRepository = userProfileRepository;
     }
 
     public List<University> getUniversitiesByCountry(String countryName) {
@@ -48,4 +57,23 @@ public class UniversityService {
             return Collections.emptyList();
         }
     }
+
+    public UniversityEntity saveUniversity(UniDTO dto) {
+        // Fetch the user by ID
+        UserProfile user = userProfileRepository.findById(dto.getUserId())
+                .orElseThrow(() -> new RuntimeException("User not found with id: " + dto.getUserId()));
+
+        // Map DTO to Entity
+        UniversityEntity university = UniversityEntity.builder()
+                .user(user)
+                .degree(dto.getDegree())
+                .university(dto.getUniversity())
+                .startDate(dto.getStartDate())
+                .endDate(dto.getEndDate())
+                .build();
+
+        return universityRepository.save(university);
+    }
+
+
 }
