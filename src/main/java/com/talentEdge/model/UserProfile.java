@@ -17,7 +17,6 @@ import java.util.List;
 public class UserProfile {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
 
     private String firstName;

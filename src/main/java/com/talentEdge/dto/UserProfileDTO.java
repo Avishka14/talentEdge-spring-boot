@@ -18,9 +18,17 @@ public class UserProfileDTO {
     private String lastName;
     private String email;
     private String specialization;
-    private List<String> educationList;
+
+    private String degree;
+    private String university;
+    private String startDate;
+    private String endDate;
+
     private List<String> experienceList;
     private List<String> skills;
     private List<String> qualifications;
+
     private LocalDate joinedDate;
+
+
 }
