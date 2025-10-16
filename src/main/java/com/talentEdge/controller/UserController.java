@@ -1,13 +1,13 @@
 package com.talentEdge.controller;
 
-import com.talentEdge.dto.LogInRequest;
-import com.talentEdge.dto.LogInResponse;
-import com.talentEdge.dto.UserProfileDTO;
+import com.talentEdge.dto.*;
 import com.talentEdge.model.UserProfile;
 import com.talentEdge.service.UserServices;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.NoSuchElementException;
 
 @RestController
 @RequestMapping("api/user")
@@ -46,6 +46,47 @@ public class UserController {
         }
 
     }
+
+    @GetMapping("/getuni/{id}")
+    public ResponseEntity<UniDTO> fetchUserUni(@PathVariable("id") String idS){
+
+        try {
+            UniDTO dto = userServices.fetchUniById(Integer.parseInt(idS));
+            return ResponseEntity.ok(dto);
+
+        }catch(NoSuchElementException e){
+            return ResponseEntity.noContent().build();
+        }
+
+
+    }
+
+    @GetMapping("/getskills/{id}")
+    public ResponseEntity<SkillsDTO> fetchUserSkills(@PathVariable("id") String idS){
+
+        try {
+            SkillsDTO dto = userServices.fetchSkilsById(Integer.parseInt(idS));
+            return ResponseEntity.ok(dto);
+
+        }catch(NoSuchElementException e){
+            return ResponseEntity.noContent().build();
+        }
+
+    }
+
+    @GetMapping("/getqualifications/{id}")
+    public ResponseEntity<ProfeQualificationsDTO> fetchUserQualifications(@PathVariable("id") String idS){
+
+        try {
+            ProfeQualificationsDTO dto = userServices.fetchQualifById(Integer.parseInt(idS));
+            return ResponseEntity.ok(dto);
+
+        }catch(NoSuchElementException e){
+            return ResponseEntity.noContent().build();
+        }
+
+    }
+
 
 
 
