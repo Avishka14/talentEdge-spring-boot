@@ -1,21 +1,22 @@
 package com.talentEdge.service;
 
-import com.talentEdge.dto.LogInRequest;
-import com.talentEdge.dto.LogInResponse;
-import com.talentEdge.dto.UserProfileDTO;
+import com.talentEdge.dto.*;
 import com.talentEdge.model.SpecializationEntity;
 import com.talentEdge.model.UniversityEntity;
 import com.talentEdge.model.UserProfile;
+import com.talentEdge.repo.SkillsRepository;
 import com.talentEdge.repo.SpecializationRepository;
 import com.talentEdge.repo.UniversityRepository;
 import com.talentEdge.repo.UserProfileRepository;
 import com.talentEdge.security.JwtUtil;
 import jakarta.servlet.http.HttpServletResponse;
+import org.apache.catalina.User;
 import org.springframework.http.ResponseCookie;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
+import java.util.NoSuchElementException;
 import java.util.Optional;
 import java.util.Random;
 
@@ -27,13 +28,15 @@ public class UserServices {
     private final JwtUtil jwtUtil;
     private final SpecializationRepository specializationRepository;
     private final UniversityRepository universityRepository;
+    private final SkillsRepository skillsRepository;
 
-    public UserServices(UserProfileRepository userProfileRepository, BCryptPasswordEncoder passwordEncoder, JwtUtil jwtUtil, SpecializationRepository specializationRepository, UniversityRepository universityRepository) {
+    public UserServices(UserProfileRepository userProfileRepository, BCryptPasswordEncoder passwordEncoder, JwtUtil jwtUtil, SpecializationRepository specializationRepository, UniversityRepository universityRepository, SkillsRepository skillsRepository) {
         this.userProfileRepository = userProfileRepository;
         this.passwordEncoder = passwordEncoder;
         this.jwtUtil = jwtUtil;
         this.specializationRepository = specializationRepository;
         this.universityRepository = universityRepository;
+        this.skillsRepository = skillsRepository;
     }
 
     public LogInResponse logIn(LogInRequest request , HttpServletResponse response){
@@ -113,6 +116,42 @@ public class UserServices {
         dto.setJoinedDate(user.getJoinedDate());
         dto.setSkills(user.getSkills());
         return dto;
+
+    }
+
+    public UniDTO fetchUniById(Integer id){
+
+        UniversityEntity data = universityRepository.findFirstByUserId(id)
+                .orElseThrow( () -> new NoSuchElementException("University Not Found"));
+
+        UniDTO uni = new UniDTO();
+        uni.setDegree(data.getDegree());
+        uni.setUniversity(data.getUniversity());
+        uni.setStartDate(data.getStartDate());
+        uni.setEndDate(data.getEndDate());
+        return uni;
+    }
+
+    public SkillsDTO fetchSkilsById(Integer id){
+
+        UserProfile user = userProfileRepository.findById(id)
+        .orElseThrow( () -> new NoSuchElementException("User Not Found"));
+
+        SkillsDTO dto = new SkillsDTO();
+        dto.setValue(user.getSkills());
+        return dto;
+
+
+    }
+
+    public ProfeQualificationsDTO fetchQualifById(Integer id){
+
+        UserProfile user = userProfileRepository.findById(id)
+                .orElseThrow(() -> new NoSuchElementException("User Not Found"));
+
+         ProfeQualificationsDTO dto = new ProfeQualificationsDTO();
+         dto.setQualifications(user.getQualifications());
+         return dto;
 
     }
 

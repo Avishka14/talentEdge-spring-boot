@@ -6,6 +6,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDate;
+import java.time.Year;
 
 @Data
 @NoArgsConstructor
@@ -16,6 +17,6 @@ public class UniDTO {
     private int userId;
     private String degree;
     private String university;
-    private LocalDate startDate;
-    private LocalDate endDate;
+    private Year startDate;
+    private Year endDate;
 }
