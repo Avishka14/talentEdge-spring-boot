@@ -21,8 +21,8 @@ public class UserController {
     }
 
     @PostMapping("/login")
-    public ResponseEntity<LogInResponse> logIn(@RequestBody LogInRequest request){
-        return ResponseEntity.ok(userServices.logIn(request));
+    public ResponseEntity<LogInResponse> logIn(@RequestBody LogInRequest request , HttpServletResponse response){
+        return ResponseEntity.ok(userServices.logIn(request , response));
     }
 
 

@@ -36,7 +36,7 @@ public class UserServices {
         this.universityRepository = universityRepository;
     }
 
-    public LogInResponse logIn(LogInRequest request){
+    public LogInResponse logIn(LogInRequest request , HttpServletResponse response){
         Optional<UserProfile> userProfile = userProfileRepository.findByEmail(request.getEmail());
 
         if(userProfile.isEmpty()){
@@ -48,6 +48,13 @@ public class UserServices {
         if(!passwordEncoder.matches(request.getPassword() , user.getPassword())){
             return new LogInResponse("Invalid Password" , false);
         }
+
+        ResponseCookie cookie = ResponseCookie.from("user" , String.valueOf(user.getId()))
+                .httpOnly(false)
+                .path("/")
+                .maxAge(24 * 60 * 60)
+                .build();
+        response.addHeader("Set-Cookie" , cookie.toString());
 
         String token = jwtUtil.generateToken(user.getEmail());
         return new LogInResponse(token, true);
@@ -83,7 +90,7 @@ public class UserServices {
         userProfileRepository.save(user);
 
         ResponseCookie cookie = ResponseCookie.from("user" , String.valueOf(number))
-                .httpOnly(true)
+                .httpOnly(false)
                 .path("/")
                 .maxAge(24 * 60 * 60)
                 .build();
