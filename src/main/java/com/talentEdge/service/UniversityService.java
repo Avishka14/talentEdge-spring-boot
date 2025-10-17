@@ -15,6 +15,7 @@ import org.springframework.web.client.RestTemplate;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.NoSuchElementException;
 
 @Service
 public class UniversityService {
@@ -59,7 +60,7 @@ public class UniversityService {
 
     public UniversityEntity saveUniversity(UniDTO dto) {
         UserProfile user = userProfileRepository.findById(dto.getUserId())
-                .orElseThrow(() -> new RuntimeException("User not found with id: " + dto.getUserId()));
+                .orElseThrow(() -> new RuntimeException("User not found with id"));
 
         UniversityEntity university = UniversityEntity.builder()
                 .user(user)
@@ -70,6 +71,20 @@ public class UniversityService {
                 .build();
 
         return universityRepository.save(university);
+    }
+
+    public UniversityEntity updateUniversity(UniDTO dto){
+
+        UniversityEntity uni = universityRepository.findFirstByUserId(dto.getUserId())
+                .orElseThrow(() -> new NoSuchElementException("User Not found"));
+
+        uni.setUniversity(dto.getUniversity());
+        uni.setDegree(dto.getDegree());
+        uni.setStartDate(dto.getStartDate());
+        uni.setEndDate(dto.getEndDate());
+
+        return universityRepository.save(uni);
+
     }
 
 

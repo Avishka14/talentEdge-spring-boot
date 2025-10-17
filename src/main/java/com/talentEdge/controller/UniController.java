@@ -8,6 +8,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.NoSuchElementException;
 
 @RestController
 @RequestMapping("/api/universities")
@@ -27,8 +28,29 @@ public class UniController {
 
     @PostMapping("/save")
     public ResponseEntity<UniversityEntity> createUniversity(@RequestBody UniDTO dto){
-        UniversityEntity uni = universityService.saveUniversity(dto);
-        return ResponseEntity.ok(uni);
+        try {
+            UniversityEntity uni = universityService.saveUniversity(dto);
+            return ResponseEntity.ok(uni);
+
+        } catch (NoSuchElementException e) {
+            return ResponseEntity.noContent().build();
+        } catch (RuntimeException e){
+            return ResponseEntity.internalServerError().build();
+        }
+
+    }
+
+    @PostMapping("/update")
+    public ResponseEntity<UniversityEntity> updateUniversity(@RequestBody UniDTO dto){
+        try {
+            UniversityEntity uni = universityService.updateUniversity(dto);
+            return ResponseEntity.ok(uni);
+
+        } catch (NoSuchElementException e) {
+                return ResponseEntity.noContent().build();
+        } catch (RuntimeException e){
+            return ResponseEntity.internalServerError().build();
+        }
     }
 
 
