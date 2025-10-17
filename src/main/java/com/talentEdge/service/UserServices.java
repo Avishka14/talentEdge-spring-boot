@@ -193,6 +193,42 @@ public class UserServices {
 
     }
 
+    public ProfeQualificationsDTO saveQualifficatio(ProfeQualificationsDTO dto){
+
+        UserProfile user = userProfileRepository.findById(dto.getUserId())
+                .orElseThrow(() -> new NoSuchElementException("User Not Found"));
+
+        List<String> currentQualifications = user.getQualifications();
+        if (currentQualifications == null) {
+            currentQualifications = new ArrayList<>();
+        }
+
+        currentQualifications.addAll(dto.getQualifications());
+
+        currentQualifications = currentQualifications.stream().distinct().collect(Collectors.toList());
+        user.setSkills(currentQualifications);
+        userProfileRepository.save(user);
+
+        return dto;
+    }
+
+    public ProfeQualificationsDTO deleteQualification(ProfeQualificationsDTO dto) {
+        UserProfile user = userProfileRepository.findById(dto.getUserId())
+                .orElseThrow(() -> new NoSuchElementException("User Not Found"));
+
+        List<String> currentQualifi = user.getQualifications();
+        if (currentQualifi == null) {
+            currentQualifi = new ArrayList<>();
+        }
+
+        currentQualifi.removeAll(dto.getQualifications());
+
+        user.setQualifications(currentQualifi);
+        userProfileRepository.save(user);
+
+        return dto;
+    }
+
     public String updateUser(UserProfile userProfile){
 
         UserProfile existingUser = userProfileRepository.findById(userProfile.getId())

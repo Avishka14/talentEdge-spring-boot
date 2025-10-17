@@ -13,4 +13,5 @@ import java.util.List;
 @Builder
 public class ProfeQualificationsDTO {
    private List<String> qualifications;
+   private Integer userId;
 }

@@ -114,6 +114,34 @@ public class UserController {
 
     }
 
+    @PostMapping("/savequalification")
+    public ResponseEntity<ProfeQualificationsDTO> saveQualification(@RequestBody ProfeQualificationsDTO profeQualificationsDTO){
+        try {
+
+            ProfeQualificationsDTO dto = userServices.saveQualifficatio(profeQualificationsDTO);
+            return ResponseEntity.ok(dto);
+
+        }catch (NoSuchElementException e){
+            return ResponseEntity.noContent().build();
+        }catch (Exception e){
+            return ResponseEntity.internalServerError().build();
+        }
+
+    }
+
+    @DeleteMapping("/deletequalification")
+    public ResponseEntity<ProfeQualificationsDTO> deleteQualification(@RequestBody ProfeQualificationsDTO dto){
+        try {
+
+            ProfeQualificationsDTO skills = userServices.deleteQualification(dto);
+            return ResponseEntity.ok(dto);
+
+        }catch (NoSuchElementException e){
+            return ResponseEntity.noContent().build();
+        }
+
+    }
+
 
     @PostMapping("/update")
     public ResponseEntity<String> updateUser(@RequestBody UserProfile userProfile){
