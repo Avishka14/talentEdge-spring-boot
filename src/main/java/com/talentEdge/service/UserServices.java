@@ -115,6 +115,7 @@ public class UserServices {
         dto.setEmail(user.getEmail());
         dto.setJoinedDate(user.getJoinedDate());
         dto.setSkills(user.getSkills());
+        dto.setLocation(user.getLocation());
         return dto;
 
     }
@@ -154,6 +155,30 @@ public class UserServices {
          return dto;
 
     }
+
+    public String updateUser(UserProfile userProfile){
+
+        UserProfile existingUser = userProfileRepository.findById(userProfile.getId())
+                .orElseThrow(() -> new NoSuchElementException("User not found with ID" ));
+
+        if (userProfile.getFirstName() != null) existingUser.setFirstName(userProfile.getFirstName());
+        if (userProfile.getLastName() != null) existingUser.setLastName(userProfile.getLastName());
+        if (userProfile.getEmail() != null) existingUser.setEmail(userProfile.getEmail());
+        if (userProfile.getPassword() != null) existingUser.setPassword(userProfile.getPassword());
+        if (userProfile.getSpecialization() != null) existingUser.setSpecialization(userProfile.getSpecialization());
+        if (userProfile.getExperienceList() != null) existingUser.setExperienceList(userProfile.getExperienceList());
+        if (userProfile.getSkills() != null) existingUser.setSkills(userProfile.getSkills());
+        if (userProfile.getQualifications() != null) existingUser.setQualifications(userProfile.getQualifications());
+        if (userProfile.getJoinedDate() != null) existingUser.setJoinedDate(userProfile.getJoinedDate());
+        if (userProfile.getLocation() != null) existingUser.setLocation(userProfile.getLocation());
+
+
+        userProfileRepository.save(existingUser);
+
+        return "User Update Successfully";
+
+    }
+
 
 
 }

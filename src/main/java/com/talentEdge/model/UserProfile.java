@@ -50,10 +50,7 @@ public class UserProfile {
 
     private LocalDate joinedDate;
 
-    @ElementCollection
-    @CollectionTable(name = "user_location", joinColumns = @JoinColumn(name = "user_id"))
-    @Column(name = "location")
-    private List<String> location;
+    private String location;
 
 
 }

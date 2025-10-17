@@ -88,6 +88,22 @@ public class UserController {
     }
 
 
+    @PostMapping("/update")
+    public ResponseEntity<String> updateUser(@RequestBody UserProfile userProfile){
+
+        try {
+            String message = userServices.updateUser(userProfile);
+            return ResponseEntity.ok(message);
+
+        }catch (NoSuchElementException e){
+            return ResponseEntity.noContent().build();
+        }catch (Exception e){
+            return ResponseEntity.internalServerError().build();
+        }
+
+
+    }
+
 
 
 }
