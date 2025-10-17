@@ -13,4 +13,5 @@ import java.util.List;
 @Builder
 public class SkillsDTO {
    List<String> value;
+   Integer userId;
 }

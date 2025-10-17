@@ -1,6 +1,7 @@
 package com.talentEdge.service;
 
 import com.talentEdge.dto.*;
+import com.talentEdge.model.Skills;
 import com.talentEdge.model.SpecializationEntity;
 import com.talentEdge.model.UniversityEntity;
 import com.talentEdge.model.UserProfile;
@@ -16,9 +17,8 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
-import java.util.NoSuchElementException;
-import java.util.Optional;
-import java.util.Random;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 public class UserServices {
@@ -142,8 +142,45 @@ public class UserServices {
         dto.setValue(user.getSkills());
         return dto;
 
-
     }
+
+    public SkillsDTO saveSkills(SkillsDTO dto) {
+        UserProfile user = userProfileRepository.findById(dto.getUserId())
+                .orElseThrow(() -> new NoSuchElementException("User Not Found"));
+
+        List<String> currentSkills = user.getSkills();
+        if (currentSkills == null) {
+            currentSkills = new ArrayList<>();
+        }
+
+        currentSkills.addAll(dto.getValue());
+
+        currentSkills = currentSkills.stream().distinct().collect(Collectors.toList());
+
+        user.setSkills(currentSkills);
+        userProfileRepository.save(user);
+
+        return dto;
+    }
+
+
+    public SkillsDTO deleteSkillsById(SkillsDTO dto) {
+        UserProfile user = userProfileRepository.findById(dto.getUserId())
+                .orElseThrow(() -> new NoSuchElementException("User Not Found"));
+
+        List<String> currentSkills = user.getSkills();
+        if (currentSkills == null) {
+            currentSkills = new ArrayList<>();
+        }
+
+        currentSkills.removeAll(dto.getValue());
+
+        user.setSkills(currentSkills);
+        userProfileRepository.save(user);
+
+        return dto;
+    }
+
 
     public ProfeQualificationsDTO fetchQualifById(Integer id){
 
