@@ -74,6 +74,33 @@ public class UserController {
 
     }
 
+  @PostMapping("/saveskill")
+  public ResponseEntity<SkillsDTO> saveUserSkills(@RequestBody SkillsDTO skillsDTO){
+        try {
+
+            SkillsDTO skills = userServices.saveSkills(skillsDTO);
+            return ResponseEntity.ok(skills);
+
+        } catch (NoSuchElementException e) {
+            return ResponseEntity.noContent().build();
+        }catch (Exception e){
+            return ResponseEntity.internalServerError().build();
+        }
+  }
+
+    @DeleteMapping("/deleteskills")
+    public ResponseEntity<SkillsDTO> updateUserSkills(@RequestBody SkillsDTO dto){
+        try {
+
+            SkillsDTO skills = userServices.deleteSkillsById(dto);
+            return ResponseEntity.ok(dto);
+
+        }catch (NoSuchElementException e){
+            return ResponseEntity.noContent().build();
+        }
+
+    }
+
     @GetMapping("/getqualifications/{id}")
     public ResponseEntity<ProfeQualificationsDTO> fetchUserQualifications(@PathVariable("id") String idS){
 
