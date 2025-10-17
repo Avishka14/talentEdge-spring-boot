@@ -24,6 +24,8 @@ public class UserProfileDTO {
     private String startDate;
     private String endDate;
 
+    private String location;
+
     private List<String> experienceList;
     private List<String> skills;
     private List<String> qualifications;
