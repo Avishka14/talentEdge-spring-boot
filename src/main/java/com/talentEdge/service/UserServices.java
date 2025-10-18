@@ -1,14 +1,8 @@
 package com.talentEdge.service;
 
 import com.talentEdge.dto.*;
-import com.talentEdge.model.Skills;
-import com.talentEdge.model.SpecializationEntity;
-import com.talentEdge.model.UniversityEntity;
-import com.talentEdge.model.UserProfile;
-import com.talentEdge.repo.SkillsRepository;
-import com.talentEdge.repo.SpecializationRepository;
-import com.talentEdge.repo.UniversityRepository;
-import com.talentEdge.repo.UserProfileRepository;
+import com.talentEdge.model.*;
+import com.talentEdge.repo.*;
 import com.talentEdge.security.JwtUtil;
 import jakarta.servlet.http.HttpServletResponse;
 import org.apache.catalina.User;
@@ -28,15 +22,15 @@ public class UserServices {
     private final JwtUtil jwtUtil;
     private final SpecializationRepository specializationRepository;
     private final UniversityRepository universityRepository;
-    private final SkillsRepository skillsRepository;
+    private final ProfilephotoRepository profilephotoRepository;
 
-    public UserServices(UserProfileRepository userProfileRepository, BCryptPasswordEncoder passwordEncoder, JwtUtil jwtUtil, SpecializationRepository specializationRepository, UniversityRepository universityRepository, SkillsRepository skillsRepository) {
+    public UserServices(UserProfileRepository userProfileRepository, BCryptPasswordEncoder passwordEncoder, JwtUtil jwtUtil, SpecializationRepository specializationRepository, UniversityRepository universityRepository, SkillsRepository skillsRepository, ProfilephotoRepository profilephotoRepository) {
         this.userProfileRepository = userProfileRepository;
         this.passwordEncoder = passwordEncoder;
         this.jwtUtil = jwtUtil;
         this.specializationRepository = specializationRepository;
         this.universityRepository = universityRepository;
-        this.skillsRepository = skillsRepository;
+        this.profilephotoRepository = profilephotoRepository;
     }
 
     public LogInResponse logIn(LogInRequest request , HttpServletResponse response){
@@ -237,20 +231,53 @@ public class UserServices {
         if (userProfile.getFirstName() != null) existingUser.setFirstName(userProfile.getFirstName());
         if (userProfile.getLastName() != null) existingUser.setLastName(userProfile.getLastName());
         if (userProfile.getEmail() != null) existingUser.setEmail(userProfile.getEmail());
-        if (userProfile.getPassword() != null) existingUser.setPassword(userProfile.getPassword());
         if (userProfile.getSpecialization() != null) existingUser.setSpecialization(userProfile.getSpecialization());
-        if (userProfile.getExperienceList() != null) existingUser.setExperienceList(userProfile.getExperienceList());
-        if (userProfile.getSkills() != null) existingUser.setSkills(userProfile.getSkills());
-        if (userProfile.getQualifications() != null) existingUser.setQualifications(userProfile.getQualifications());
-        if (userProfile.getJoinedDate() != null) existingUser.setJoinedDate(userProfile.getJoinedDate());
         if (userProfile.getLocation() != null) existingUser.setLocation(userProfile.getLocation());
-
-
+        if (userProfile.getAbout() != null) existingUser.setAbout(userProfile.getAbout());
         userProfileRepository.save(existingUser);
 
         return "User Update Successfully";
 
     }
+
+    public UserProfilePhotoDTO saveUserProfilePhoto(UserProfilePhotoDTO userProfilePhotoDTO){
+
+        UserProfile userProfile = userProfileRepository.findById(userProfilePhotoDTO.getUserId())
+                .orElseThrow(() -> new NoSuchElementException("User Not Found"));
+
+        ProfilePhoto profilePhoto =  ProfilePhoto.builder()
+                .photoUrl(userProfilePhotoDTO.getImgUrl())
+                .userProfile(userProfile).build();
+
+           profilephotoRepository.save(profilePhoto);
+           return userProfilePhotoDTO;
+
+    }
+
+    public UserProfilePhotoDTO updateUserProfilePhoto(UserProfilePhotoDTO userProfilePhotoDTO){
+
+        ProfilePhoto profilePhoto = profilephotoRepository.findFirstByUserProfile_Id(userProfilePhotoDTO.getUserId())
+                .orElseThrow(() -> new NoSuchElementException("Profile Photo not Found"));
+
+        profilePhoto.setPhotoUrl(userProfilePhotoDTO.getImgUrl());
+
+        profilephotoRepository.save(profilePhoto);
+        return userProfilePhotoDTO;
+
+    }
+
+    public boolean deleteUserProfilePhoto(Integer userId) {
+        Optional<ProfilePhoto> photoOpt = profilephotoRepository.findFirstByUserProfile_Id(userId);
+        if (photoOpt.isPresent()) {
+            profilephotoRepository.delete(photoOpt.get());
+            return true;
+        }
+        return false;
+    }
+
+
+
+
 
 
 

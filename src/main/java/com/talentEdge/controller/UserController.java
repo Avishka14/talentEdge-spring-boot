@@ -160,5 +160,46 @@ public class UserController {
     }
 
 
+    @PostMapping("/profilepic/save")
+    public ResponseEntity<UserProfilePhotoDTO> saveUserProfileImage(@RequestBody UserProfilePhotoDTO userProfilePhotoDTO){
+        try {
+
+            UserProfilePhotoDTO userProfilePhotoDTO1 = userServices.saveUserProfilePhoto(userProfilePhotoDTO);
+            return ResponseEntity.ok(userProfilePhotoDTO1);
+
+        }catch (NoSuchElementException n){
+            return ResponseEntity.noContent().build();
+        }catch (Exception e){
+            return ResponseEntity.internalServerError().build();
+        }
+    }
+
+    @PutMapping("/profilepic/update")
+    public  ResponseEntity<UserProfilePhotoDTO> updateUserPRofileImage(@RequestBody UserProfilePhotoDTO userProfilePhotoDTO){
+        try {
+
+            UserProfilePhotoDTO userProfile = userServices.updateUserProfilePhoto(userProfilePhotoDTO);
+            return ResponseEntity.ok(userProfile);
+
+        }catch (NoSuchElementException n){
+            return ResponseEntity.noContent().build();
+        }catch (Exception e){
+            return ResponseEntity.internalServerError().build();
+        }
+    }
+
+    @DeleteMapping("/profilepic/remove/{id}")
+    public ResponseEntity<String> deleteProfilePhoto(@PathVariable Integer id) {
+        boolean deleted = userServices.deleteUserProfilePhoto(id);
+        if (deleted) {
+            return ResponseEntity.ok("Profile photo deleted successfully");
+        } else {
+            return ResponseEntity.internalServerError().build();
+        }
+    }
+
+
+
+
 
 }

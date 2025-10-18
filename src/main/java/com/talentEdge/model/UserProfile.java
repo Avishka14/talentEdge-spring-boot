@@ -52,5 +52,7 @@ public class UserProfile {
 
     private String location;
 
+    private String about;
+
 
 }

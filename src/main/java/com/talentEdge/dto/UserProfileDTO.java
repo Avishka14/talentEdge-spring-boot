@@ -31,6 +31,7 @@ public class UserProfileDTO {
     private List<String> qualifications;
 
     private LocalDate joinedDate;
+    private String about;
 
 
 }
