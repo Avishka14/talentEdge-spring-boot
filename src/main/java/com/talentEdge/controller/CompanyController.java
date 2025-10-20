@@ -20,7 +20,7 @@ public class CompanyController {
         this.companyServices = companyServices;
     }
 
-    @GetMapping("/login")
+    @PostMapping("/login")
     public ResponseEntity<LogInResponse> companyLogIn(@RequestBody LogInRequest request , HttpServletResponse response){
         return ResponseEntity.ok(companyServices.companyLogIn(request , response));
     }
