@@ -75,6 +75,7 @@ public class CompanyServices {
             }while(companyRepository.existsById(number));
 
             company.setId(number);
+            company.setName(company.getName());
             company.setAbout(company.getAbout());
             company.setEmail(company.getEmail());
             company.setContact(company.getContact());

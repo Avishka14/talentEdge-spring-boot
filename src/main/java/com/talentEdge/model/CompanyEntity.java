@@ -19,7 +19,7 @@ public class CompanyEntity {
 
     @Id
     private int id;
-
+    private String name;
     private String email;
     private String webUrl;
     private String contact;
