@@ -18,7 +18,6 @@ import lombok.NoArgsConstructor;
 public class CompanyEntity {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
 
     private String email;
