@@ -1,5 +1,6 @@
 package com.talentEdge.service;
 
+import com.talentEdge.dto.CompanyDTO;
 import com.talentEdge.dto.LogInRequest;
 import com.talentEdge.dto.LogInResponse;
 import com.talentEdge.dto.RegistrationResponse;
@@ -93,6 +94,37 @@ public class CompanyServices {
 
             return new RegistrationResponse("Company Successfully Saved" , true);
         }
+    }
+
+    public CompanyDTO fetchCompanyDataByID(Integer companyId){
+
+        CompanyEntity company = companyRepository.findById(companyId)
+                .orElseThrow(() -> new NoSuchElementException("Company Not Found"));
+        CompanyDTO dto = new CompanyDTO();
+        dto.setName(company.getName());
+        dto.setContact(company.getContact());
+        dto.setEmail(company.getEmail());
+        dto.setWebUrl(company.getWebUrl());
+        dto.setAbout(company.getAbout());
+        return dto;
+
+    }
+
+    public boolean updateCompanyData(CompanyDTO companyDTO){
+        CompanyEntity company = companyRepository.findById(companyDTO.getId())
+                .orElseThrow(() -> new NoSuchElementException("Company Not Found"));
+
+
+        if (companyDTO.getName() != null) company.setName(companyDTO.getName());
+        if (companyDTO.getPassword() != null) company.setPassword(companyDTO.getPassword());
+        if (companyDTO.getAbout() != null) company.setAbout(companyDTO.getAbout());
+        if (companyDTO.getWebUrl() != null) company.setWebUrl(companyDTO.getWebUrl());
+        if (companyDTO.getContact() != null) company.setContact(companyDTO.getContact());
+
+        companyRepository.save(company);
+
+        return true;
+
     }
 
 
