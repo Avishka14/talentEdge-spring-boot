@@ -5,7 +5,6 @@ import com.talentEdge.model.*;
 import com.talentEdge.repo.*;
 import com.talentEdge.security.JwtUtil;
 import jakarta.servlet.http.HttpServletResponse;
-import org.apache.catalina.User;
 import org.springframework.http.ResponseCookie;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -24,7 +23,7 @@ public class UserServices {
     private final UniversityRepository universityRepository;
     private final ProfilephotoRepository profilephotoRepository;
 
-    public UserServices(UserProfileRepository userProfileRepository, BCryptPasswordEncoder passwordEncoder, JwtUtil jwtUtil, SpecializationRepository specializationRepository, UniversityRepository universityRepository, SkillsRepository skillsRepository, ProfilephotoRepository profilephotoRepository) {
+    public UserServices(UserProfileRepository userProfileRepository, BCryptPasswordEncoder passwordEncoder, JwtUtil jwtUtil, SpecializationRepository specializationRepository, UniversityRepository universityRepository, ProfilephotoRepository profilephotoRepository) {
         this.userProfileRepository = userProfileRepository;
         this.passwordEncoder = passwordEncoder;
         this.jwtUtil = jwtUtil;
