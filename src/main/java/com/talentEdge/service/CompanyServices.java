@@ -76,11 +76,6 @@ public class CompanyServices {
             }while(companyRepository.existsById(number));
 
             company.setId(number);
-            company.setName(company.getName());
-            company.setAbout(company.getAbout());
-            company.setEmail(company.getEmail());
-            company.setContact(company.getContact());
-            company.setWebUrl(company.getWebUrl());
             company.setPassword(passwordEncoder.encode(company.getPassword()));
 
             companyRepository.save(company);
