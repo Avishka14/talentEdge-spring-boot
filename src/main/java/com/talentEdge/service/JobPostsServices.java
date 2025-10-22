@@ -5,8 +5,11 @@ import com.talentEdge.dto.LogInResponse;
 import com.talentEdge.model.JobApproval;
 import com.talentEdge.model.JobPosts;
 import com.talentEdge.repo.JobPostsRepository;
-import lombok.extern.java.Log;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
+import java.util.NoSuchElementException;
+import java.util.stream.Collectors;
 
 @Service
 public class JobPostsServices {
@@ -40,11 +43,31 @@ public class JobPostsServices {
             jobPostsRepository.save(jobPosts);
 
              response = new LogInResponse("Successfilly Opened Job Post Please wait for Approval" , true);
-
         }
-
         return response;
 
+    }
+
+    public List<JobPostsDTO> fetchJobOpeningsByID(Integer companyId) {
+        List<JobPosts> jobPostsList = jobPostsRepository.findByCompany_Id(companyId);
+
+        if (jobPostsList.isEmpty()) {
+            throw new NoSuchElementException("No job postings found for company ID: " + companyId);
+        }
+
+        return jobPostsList.stream()
+                .map(post -> JobPostsDTO.builder()
+                        .id(post.getId())
+                        .title(post.getJobTitle())
+                        .jobDescription(post.getJobDescription())
+                        .jobType(post.getJobType())
+                        .contact(post.getContact())
+                        .salary(post.getSalary())
+                        .companyId(post.getCompany().getId())
+                        .approvalId(post.getJobApproval().getId())
+                        .build()
+                )
+                .collect(Collectors.toList());
     }
 
 }
