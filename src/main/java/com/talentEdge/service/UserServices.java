@@ -109,6 +109,7 @@ public class UserServices {
         dto.setJoinedDate(user.getJoinedDate());
         dto.setSkills(user.getSkills());
         dto.setLocation(user.getLocation());
+        dto.setAbout(user.getAbout());
         return dto;
 
     }

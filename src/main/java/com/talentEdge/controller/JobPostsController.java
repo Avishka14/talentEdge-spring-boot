@@ -21,7 +21,7 @@ public class JobPostsController {
     }
 
     @PostMapping("/open")
-    public ResponseEntity<LogInResponse> openNewJobPost(@RequestBody JobPosts jobPosts){
+    public ResponseEntity<LogInResponse> openNewJobPost(@RequestBody JobPostsDTO jobPosts){
         LogInResponse response = jobPostsServices.openNewJoPost(jobPosts);
         return ResponseEntity.ok(response);
     }
