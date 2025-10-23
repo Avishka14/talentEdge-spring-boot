@@ -8,6 +8,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.NoSuchElementException;
 
 @RestController
 @RequestMapping("/api/jobposts")
@@ -29,6 +30,20 @@ public class JobPostsController {
     @GetMapping("/fetch/{companyId}")
     public List<JobPostsDTO> getJobsByCompany(@PathVariable Integer companyId) {
         return jobPostsServices.fetchJobOpeningsByID(companyId);
+    }
+
+    @PostMapping("/update")
+    public ResponseEntity<LogInResponse> updateExistingJobPost(@RequestBody JobPostsDTO jobPostsDTO){
+        try {
+
+            LogInResponse response = jobPostsServices.updateJobPost(jobPostsDTO);
+            return ResponseEntity.ok(response);
+
+        }catch (NoSuchElementException e){
+            return ResponseEntity.noContent().build();
+        }catch (Exception e){
+            return ResponseEntity.internalServerError().build();
+        }
     }
 
 
