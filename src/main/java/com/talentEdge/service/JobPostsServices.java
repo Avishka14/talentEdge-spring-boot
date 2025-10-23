@@ -91,4 +91,28 @@ public class JobPostsServices {
                 .collect(Collectors.toList());
     }
 
+
+    public LogInResponse updateJobPost(JobPostsDTO jobPostsDTO){
+
+        JobPosts jobPosts = jobPostsRepository.findById(jobPostsDTO.getId())
+                .orElseThrow(() -> new NoSuchElementException("Job post not found"));
+
+        JobApproval approval = new JobApproval();
+        approval.setId(1);
+
+        if(jobPostsDTO.getTitle() != null) jobPosts.setJobTitle(jobPostsDTO.getTitle());
+        if(jobPostsDTO.getJobType() != null) jobPosts.setJobType(jobPostsDTO.getJobType());
+        if(jobPostsDTO.getJobDescription() != null) jobPosts.setJobDescription(jobPostsDTO.getJobDescription());
+        if(jobPostsDTO.getSalary() != null) jobPosts.setSalary(jobPostsDTO.getSalary());
+        if(jobPostsDTO.getContact() != null) jobPosts.setContact(jobPostsDTO.getContact());
+        jobPosts.setJobApproval(approval);
+
+        jobPostsRepository.save(jobPosts);
+
+        return new LogInResponse("Job Post Successfully Updated" ,  true);
+
+
+    }
+
+
 }
