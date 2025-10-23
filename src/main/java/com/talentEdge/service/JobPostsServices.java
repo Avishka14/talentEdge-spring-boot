@@ -2,8 +2,10 @@ package com.talentEdge.service;
 
 import com.talentEdge.dto.JobPostsDTO;
 import com.talentEdge.dto.LogInResponse;
+import com.talentEdge.model.CompanyEntity;
 import com.talentEdge.model.JobApproval;
 import com.talentEdge.model.JobPosts;
+import com.talentEdge.repo.CompanyRepository;
 import com.talentEdge.repo.JobPostsRepository;
 import org.springframework.stereotype.Service;
 
@@ -15,18 +17,20 @@ import java.util.stream.Collectors;
 public class JobPostsServices {
 
     private final JobPostsRepository jobPostsRepository;
+    private final CompanyRepository companyRepository;
 
-    public JobPostsServices(JobPostsRepository jobPostsRepository) {
+    public JobPostsServices(JobPostsRepository jobPostsRepository, CompanyRepository companyRepository) {
         this.jobPostsRepository = jobPostsRepository;
+        this.companyRepository = companyRepository;
     }
 
-    public LogInResponse openNewJoPost(JobPosts jobPosts){
+    public LogInResponse openNewJoPost(JobPostsDTO jobPosts){
 
         LogInResponse response;
 
         if(jobPosts.getJobType().isEmpty()){
             return new LogInResponse("JobType not provided" , false);
-        }else if(jobPosts.getJobTitle().isEmpty()){
+        }else if(jobPosts.getTitle().isEmpty()){
             return new LogInResponse("Job Title" , false);
         }else if(jobPosts.getJobDescription().isEmpty()){
             return new LogInResponse("Job Description is not Provided" , false);
@@ -35,14 +39,31 @@ public class JobPostsServices {
         }else if(jobPosts.getSalary().isEmpty()){
             return new LogInResponse("Salary is not Provided" , false);
         }else{
-            JobApproval waiting = new JobApproval();
-            waiting.setId(1);
 
-            jobPosts.setJobApproval(waiting);
+           JobPosts model = new JobPosts();
+           CompanyEntity company = companyRepository.findById(jobPosts.getCompanyId())
+                   .orElseThrow(() -> new NoSuchElementException("Company Not Found"));
 
-            jobPostsRepository.save(jobPosts);
+           JobApproval approval = new JobApproval();
+           approval.setId(1);
+           if(company != null){
 
-             response = new LogInResponse("Successfilly Opened Job Post Please wait for Approval" , true);
+               model.setCompany(company);
+               model.setJobTitle(jobPosts.getTitle());
+               model.setSalary(jobPosts.getSalary());
+               model.setJobType(jobPosts.getJobType());
+               model.setContact(jobPosts.getContact());
+               model.setJobApproval(approval);
+               model.setJobDescription(jobPosts.getJobDescription());
+
+               jobPostsRepository.save(model);
+               response = new LogInResponse("Successfilly Opened Job Post Please wait for Approval" , true);
+
+           }else{
+               response = new LogInResponse("Error in Company Profile" , false);
+           }
+
+
         }
         return response;
 
