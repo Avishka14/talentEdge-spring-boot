@@ -11,6 +11,8 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.NoSuchElementException;
+import java.util.Optional;
+import java.util.Random;
 import java.util.stream.Collectors;
 
 @Service
@@ -44,10 +46,20 @@ public class JobPostsServices {
            CompanyEntity company = companyRepository.findById(jobPosts.getCompanyId())
                    .orElseThrow(() -> new NoSuchElementException("Company Not Found"));
 
-           JobApproval approval = new JobApproval();
-           approval.setId(1);
+            Random random = new Random();
+            int number;
+            String id;
+            do {
+                number = 1000 + random.nextInt(9000);
+                id = "JBPST: " + String.valueOf(number);
+            } while (jobPostsRepository.existsById(id));
+
+            JobApproval approval = new JobApproval();
+            approval.setId(1);
+
            if(company != null){
 
+               model.setId(id);
                model.setCompany(company);
                model.setJobTitle(jobPosts.getTitle());
                model.setSalary(jobPosts.getSalary());
@@ -111,6 +123,16 @@ public class JobPostsServices {
 
         return new LogInResponse("Job Post Successfully Updated" ,  true);
 
+
+    }
+
+    public LogInResponse removeJobPosting(String jobPostingId){
+
+        JobPosts post = jobPostsRepository.findById(jobPostingId)
+                .orElseThrow(() -> new NoSuchElementException("Job Post not Found"));
+
+        jobPostsRepository.delete(post);
+        return new LogInResponse("Success" , true);
 
     }
 

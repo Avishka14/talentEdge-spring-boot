@@ -27,8 +27,8 @@ public class UserController {
 
 
     @PostMapping("/register")
-    public ResponseEntity<String> register(@RequestBody UserProfile user , HttpServletResponse Httpresponse) {
-        String response = userServices.register(user ,  Httpresponse);
+    public ResponseEntity<LogInResponse> register(@RequestBody UserProfile user , HttpServletResponse Httpresponse) {
+        LogInResponse response = userServices.register(user ,  Httpresponse);
         return ResponseEntity.ok(response);
     }
 
