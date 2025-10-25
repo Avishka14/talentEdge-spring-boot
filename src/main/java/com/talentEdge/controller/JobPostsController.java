@@ -4,6 +4,7 @@ import com.talentEdge.dto.JobPostsDTO;
 import com.talentEdge.dto.LogInResponse;
 import com.talentEdge.model.JobPosts;
 import com.talentEdge.service.JobPostsServices;
+import lombok.extern.java.Log;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -44,6 +45,20 @@ public class JobPostsController {
         }catch (Exception e){
             return ResponseEntity.internalServerError().build();
         }
+    }
+
+    @DeleteMapping("/remove/{id}")
+    public ResponseEntity<LogInResponse> removeJobPostbyId(@PathVariable String id){
+
+        try {
+
+            LogInResponse logInResponse = jobPostsServices.removeJobPosting(id);
+            return ResponseEntity.ok(logInResponse);
+
+        }catch (NoSuchElementException e){
+            return ResponseEntity.noContent().build();
+        }
+
     }
 
 

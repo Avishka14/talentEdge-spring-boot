@@ -14,8 +14,7 @@ import lombok.NoArgsConstructor;
 public class JobPosts {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private int id;
+    private String id;
 
     @ManyToOne
     @JoinColumn(name = "company_id")

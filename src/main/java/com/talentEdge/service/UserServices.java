@@ -57,9 +57,9 @@ public class UserServices {
 
     }
 
-    public String register(UserProfile user , HttpServletResponse response) {
+    public LogInResponse register(UserProfile user , HttpServletResponse response) {
         if (userProfileRepository.findByEmail(user.getEmail()).isPresent()) {
-            return "Email already exists";
+            return new LogInResponse("Email already exists" , false);
         }
 
         if (user.getSpecialization() == null) {
@@ -92,7 +92,7 @@ public class UserServices {
                 .build();
         response.addHeader("Set-Cookie" , cookie.toString());
 
-        return "User registered successfully" ;
+        return new LogInResponse("Success" , true);
     }
 
     public UserProfileDTO fetchUserInfoById(Integer id){

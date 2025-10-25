@@ -10,7 +10,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @Builder
 public class JobPostsDTO {
-    private int id;
+    private String id;
     private String title;
     private String jobDescription;
     private String jobType;
