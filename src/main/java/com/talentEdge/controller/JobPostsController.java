@@ -29,8 +29,15 @@ public class JobPostsController {
     }
 
     @GetMapping("/fetch/{companyId}")
-    public List<JobPostsDTO> getJobsByCompany(@PathVariable Integer companyId) {
-        return jobPostsServices.fetchJobOpeningsByID(companyId);
+    public ResponseEntity<List<JobPostsDTO>> getJobsByCompany(@PathVariable Integer companyId) {
+        try{
+            return ResponseEntity.ok(jobPostsServices.fetchJobOpeningsByID(companyId));
+
+        }catch (NoSuchElementException E){
+             return  ResponseEntity.noContent().build();
+        }catch (Exception e){
+            return ResponseEntity.internalServerError().build();
+        }
     }
 
     @PostMapping("/update")
