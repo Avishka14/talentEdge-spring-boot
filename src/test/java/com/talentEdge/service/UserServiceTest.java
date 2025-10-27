@@ -2,7 +2,10 @@ package com.talentEdge.service;
 
 import com.talentEdge.dto.LogInRequest;
 import com.talentEdge.dto.LogInResponse;
+import com.talentEdge.dto.UniDTO;
+import com.talentEdge.dto.UserProfileDTO;
 import com.talentEdge.model.SpecializationEntity;
+import com.talentEdge.model.UniversityEntity;
 import com.talentEdge.model.UserProfile;
 import com.talentEdge.repo.*;
 import com.talentEdge.security.JwtUtil;
@@ -13,6 +16,9 @@ import org.mockito.*;
 import org.springframework.http.ResponseCookie;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
+import java.time.LocalDate;
+import java.time.Year;
+import java.util.NoSuchElementException;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -25,6 +31,9 @@ class UserServicesTest {
 
     @Mock
     private SpecializationRepository specializationRepository;
+
+    @Mock
+    private UniversityRepository universityRepository;
 
     @Mock
     private BCryptPasswordEncoder passwordEncoder;
@@ -141,4 +150,82 @@ class UserServicesTest {
 
         assertThrows(RuntimeException.class, () -> userServices.register(user, response));
     }
+
+
+    @Test
+    void testFetchUserInfoById_Success() {
+        UserProfile user = new UserProfile();
+        user.setId(1);
+        user.setFirstName("Avishka");
+        user.setLastName("Chamod");
+        user.setEmail("avishka@example.com");
+        user.setJoinedDate(LocalDate.of(2024, 1, 10));
+        user.setLocation("Colombo");
+        user.setAbout("Java Developer");
+
+        SpecializationEntity specialization = new SpecializationEntity();
+        specialization.setValue("Software Engineering");
+        user.setSpecialization(specialization);
+
+        when(userProfileRepository.findById(1)).thenReturn(Optional.of(user));
+
+        UserProfileDTO result = userServices.fetchUserInfoById(1);
+
+        assertNotNull(result);
+        assertEquals("Avishka", result.getFirstName());
+        assertEquals("Chamod", result.getLastName());
+        assertEquals("Software Engineering", result.getSpecialization());
+        assertEquals("avishka@example.com", result.getEmail());
+        verify(userProfileRepository, times(1)).findById(1);
+    }
+
+    @Test
+    void testFetchUserInfoById_UserNotFound() {
+
+        when(userProfileRepository.findById(99)).thenReturn(Optional.empty());
+
+        RuntimeException exception = assertThrows(RuntimeException.class, () -> {
+            userServices.fetchUserInfoById(99);
+        });
+
+        assertEquals("User id is invalid", exception.getMessage());
+        verify(userProfileRepository, times(1)).findById(99);
+    }
+
+    @Test
+    void testFetchUniById_Success() {
+
+        UniversityEntity entity = new UniversityEntity();
+        entity.setDegree("BSc Computer Science");
+        entity.setUniversity("University of Colombo");
+        entity.setStartDate(Year.of(2022));
+        entity.setEndDate(Year.of(2026));
+
+        when(universityRepository.findFirstByUserId(1)).thenReturn(Optional.of(entity));
+
+        UniDTO result = userServices.fetchUniById(1);
+
+        assertNotNull(result);
+        assertEquals("BSc Computer Science", result.getDegree());
+        assertEquals("University of Colombo", result.getUniversity());
+        assertEquals(Year.of(2022), result.getStartDate());
+        assertEquals(Year.of(2026), result.getEndDate());
+        verify(universityRepository, times(1)).findFirstByUserId(1);
+    }
+
+    @Test
+    void testFetchUniById_UniversityNotFound() {
+        when(universityRepository.findFirstByUserId(99)).thenReturn(Optional.empty());
+
+        NoSuchElementException exception = assertThrows(NoSuchElementException.class, () -> {
+            userServices.fetchUniById(99);
+        });
+
+        assertEquals("University Not Found", exception.getMessage());
+        verify(universityRepository, times(1)).findFirstByUserId(99);
+    }
+
+
+
+
 }
