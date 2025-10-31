@@ -10,7 +10,6 @@ import jakarta.servlet.http.HttpServletResponse;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.*;
-import org.springframework.http.ResponseCookie;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
 import java.time.LocalDate;
@@ -68,7 +67,7 @@ class UserServicesTest {
         when(jwtUtil.generateToken("Avishka@example.com")).thenReturn("mockToken");
 
 
-        LogInResponse result = userServices.logIn(request, response);
+        Response result = userServices.logIn(request, response);
 
         assertTrue(result.isStatus());
         assertEquals("mockToken", result.getMessage());
@@ -83,7 +82,7 @@ class UserServicesTest {
 
         when(userProfileRepository.findByEmail("notfound@example.com")).thenReturn(Optional.empty());
 
-        LogInResponse result = userServices.logIn(request, response);
+        Response result = userServices.logIn(request, response);
 
         assertFalse(result.isStatus());
         assertEquals("User not found", result.getMessage());
@@ -101,7 +100,7 @@ class UserServicesTest {
         when(userProfileRepository.findByEmail("Avishka@example.com")).thenReturn(Optional.of(user));
         when(passwordEncoder.matches("wrong", "encodedPassword")).thenReturn(false);
 
-        LogInResponse result = userServices.logIn(request, response);
+        Response result = userServices.logIn(request, response);
 
         assertFalse(result.isStatus());
         assertEquals("Invalid Password", result.getMessage());
@@ -118,7 +117,7 @@ class UserServicesTest {
         when(specializationRepository.findById(1)).thenReturn(Optional.of(newUser.getSpecialization()));
         when(passwordEncoder.encode("plain")).thenReturn("encodedPassword");
 
-        LogInResponse responseObj = userServices.register(newUser, response);
+        Response responseObj = userServices.register(newUser, response);
 
         assertTrue(responseObj.isStatus());
         assertEquals("Success", responseObj.getMessage());
@@ -133,7 +132,7 @@ class UserServicesTest {
 
         when(userProfileRepository.findByEmail("existing@example.com")).thenReturn(Optional.of(existing));
 
-        LogInResponse responseObj = userServices.register(existing, response);
+        Response responseObj = userServices.register(existing, response);
 
         assertFalse(responseObj.isStatus());
         assertEquals("Email already exists", responseObj.getMessage());

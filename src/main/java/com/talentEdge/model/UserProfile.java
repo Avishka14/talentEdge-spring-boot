@@ -54,5 +54,9 @@ public class UserProfile {
 
     private String about;
 
+    @ManyToOne
+    @JoinColumn(name = "role_id")
+    private Role role;
+
 
 }

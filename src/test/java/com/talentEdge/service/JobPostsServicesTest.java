@@ -1,7 +1,7 @@
 package com.talentEdge.service;
 
 import com.talentEdge.dto.JobPostsDTO;
-import com.talentEdge.dto.LogInResponse;
+import com.talentEdge.dto.Response;
 import com.talentEdge.model.CompanyEntity;
 import com.talentEdge.model.JobApproval;
 import com.talentEdge.model.JobPosts;
@@ -48,7 +48,7 @@ class JobPostsServicesTest {
         when(companyRepository.findById(1)).thenReturn(Optional.of(company));
         when(jobPostsRepository.existsById(anyString())).thenReturn(false);
 
-        LogInResponse response = jobPostsServices.openNewJoPost(dto);
+        Response response = jobPostsServices.openNewJoPost(dto);
 
         assertTrue(response.isStatus());
         assertEquals("Successfilly Opened Job Post Please wait for Approval", response.getMessage());
@@ -59,7 +59,7 @@ class JobPostsServicesTest {
     void testOpenNewJobPost_MissingFields() {
         JobPostsDTO dto = new JobPostsDTO();
         dto.setJobType("");
-        LogInResponse response = jobPostsServices.openNewJoPost(dto);
+        Response response = jobPostsServices.openNewJoPost(dto);
 
         assertFalse(response.isStatus());
         assertEquals("JobType not provided", response.getMessage());
@@ -111,7 +111,7 @@ class JobPostsServicesTest {
 
         when(jobPostsRepository.findById("JBPST: 1234")).thenReturn(Optional.of(post));
 
-        LogInResponse response = jobPostsServices.updateJobPost(dto);
+        Response response = jobPostsServices.updateJobPost(dto);
 
         assertTrue(response.isStatus());
         assertEquals("Job Post Successfully Updated", response.getMessage());
@@ -125,7 +125,7 @@ class JobPostsServicesTest {
 
         when(jobPostsRepository.findById("JBPST: 5555")).thenReturn(Optional.of(post));
 
-        LogInResponse response = jobPostsServices.removeJobPosting("JBPST: 5555");
+        Response response = jobPostsServices.removeJobPosting("JBPST: 5555");
 
         assertTrue(response.isStatus());
         verify(jobPostsRepository, times(1)).delete(post);

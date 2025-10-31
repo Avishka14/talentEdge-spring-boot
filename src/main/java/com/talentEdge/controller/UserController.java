@@ -14,7 +14,7 @@ import java.util.NoSuchElementException;
 @CrossOrigin(value = "*" )
 public class UserController {
 
-    private UserServices userServices;
+    private final UserServices userServices;
 
     public UserController(UserServices userServices){
         this.userServices = userServices;
@@ -27,8 +27,8 @@ public class UserController {
 
 
     @PostMapping("/register")
-    public ResponseEntity<LogInResponse> register(@RequestBody UserProfile user , HttpServletResponse Httpresponse) {
-        LogInResponse response = userServices.register(user ,  Httpresponse);
+    public ResponseEntity<Response> register(@RequestBody UserProfile user , HttpServletResponse Httpresponse) {
+        Response response = userServices.register(user ,  Httpresponse);
         return ResponseEntity.ok(response);
     }
 
