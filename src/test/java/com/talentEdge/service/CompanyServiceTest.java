@@ -8,7 +8,6 @@ import jakarta.servlet.http.HttpServletResponse;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.*;
-import org.springframework.http.ResponseCookie;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
 import java.util.NoSuchElementException;
@@ -53,7 +52,7 @@ public class CompanyServiceTest {
         when(passwordEncoder.matches("password123", "encodedPassword")).thenReturn(true);
         when(jwtUtil.generateToken("test@company.com")).thenReturn("fake-jwt-token");
 
-        LogInResponse result = companyServices.companyLogIn(request, response);
+        Response result = companyServices.companyLogIn(request, response);
 
         assertTrue(result.isStatus());
         assertEquals("fake-jwt-token", result.getMessage());
@@ -75,7 +74,7 @@ public class CompanyServiceTest {
         when(companyRepository.findByEmail("test@company.com")).thenReturn(Optional.of(company));
         when(passwordEncoder.matches("wrongPass", "encodedPassword")).thenReturn(false);
 
-        LogInResponse result = companyServices.companyLogIn(request, response);
+        Response result = companyServices.companyLogIn(request, response);
 
         assertFalse(result.isStatus());
         assertEquals("Invalid Password", result.getMessage());

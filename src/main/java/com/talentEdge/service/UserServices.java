@@ -22,44 +22,50 @@ public class UserServices {
     private final SpecializationRepository specializationRepository;
     private final UniversityRepository universityRepository;
     private final ProfilephotoRepository profilephotoRepository;
+    private final RoleRepository roleRepository;
 
-    public UserServices(UserProfileRepository userProfileRepository, BCryptPasswordEncoder passwordEncoder, JwtUtil jwtUtil, SpecializationRepository specializationRepository, UniversityRepository universityRepository, ProfilephotoRepository profilephotoRepository) {
+    public UserServices(UserProfileRepository userProfileRepository, BCryptPasswordEncoder passwordEncoder, JwtUtil jwtUtil, SpecializationRepository specializationRepository, UniversityRepository universityRepository, ProfilephotoRepository profilephotoRepository, RoleRepository roleRepository) {
         this.userProfileRepository = userProfileRepository;
         this.passwordEncoder = passwordEncoder;
         this.jwtUtil = jwtUtil;
         this.specializationRepository = specializationRepository;
         this.universityRepository = universityRepository;
         this.profilephotoRepository = profilephotoRepository;
+        this.roleRepository = roleRepository;
     }
 
-    public LogInResponse logIn(LogInRequest request , HttpServletResponse response){
+    public LogInResponse logIn(LogInRequest request, HttpServletResponse response) {
         Optional<UserProfile> userProfile = userProfileRepository.findByEmail(request.getEmail());
 
-        if(userProfile.isEmpty()){
-            return new LogInResponse("User not found" , false);
+        if (userProfile.isEmpty()) {
+            return new LogInResponse("User not found", false);
         }
 
         UserProfile user = userProfile.get();
 
-        if(!passwordEncoder.matches(request.getPassword() , user.getPassword())){
-            return new LogInResponse("Invalid Password" , false);
+        if (!passwordEncoder.matches(request.getPassword(), user.getPassword())) {
+            return new LogInResponse("Invalid Password", false);
         }
 
-        ResponseCookie cookie = ResponseCookie.from("user" , String.valueOf(user.getId()))
+        ResponseCookie cookie = ResponseCookie.from("user", String.valueOf(user.getId()))
                 .httpOnly(false)
                 .path("/")
                 .maxAge(24 * 60 * 60)
                 .build();
-        response.addHeader("Set-Cookie" , cookie.toString());
+        response.addHeader("Set-Cookie", cookie.toString());
 
         String token = jwtUtil.generateToken(user.getEmail());
-        return new LogInResponse(token, true);
 
+
+        String role = user.getRole().getRole();
+
+        return new LogInResponse(token, true, role);
     }
 
-    public LogInResponse register(UserProfile user , HttpServletResponse response) {
+
+    public Response register(UserProfile user , HttpServletResponse response) {
         if (userProfileRepository.findByEmail(user.getEmail()).isPresent()) {
-            return new LogInResponse("Email already exists" , false);
+            return new Response("Email already exists" , false);
         }
 
         if (user.getSpecialization() == null) {
@@ -83,6 +89,10 @@ public class UserServices {
         user.setPassword(passwordEncoder.encode(user.getPassword()));
         user.setJoinedDate(LocalDate.now());
 
+        Role userRole = roleRepository.findById(2)
+                .orElseThrow(() -> new RuntimeException("Default USER role not found"));
+        user.setRole(userRole);
+
         userProfileRepository.save(user);
 
         ResponseCookie cookie = ResponseCookie.from("user" , String.valueOf(number))
@@ -92,7 +102,7 @@ public class UserServices {
                 .build();
         response.addHeader("Set-Cookie" , cookie.toString());
 
-        return new LogInResponse("Success" , true);
+        return new Response("Success" , true);
     }
 
     public UserProfileDTO fetchUserInfoById(Integer id){

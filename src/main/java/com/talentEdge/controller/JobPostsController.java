@@ -1,10 +1,8 @@
 package com.talentEdge.controller;
 
 import com.talentEdge.dto.JobPostsDTO;
-import com.talentEdge.dto.LogInResponse;
-import com.talentEdge.model.JobPosts;
+import com.talentEdge.dto.Response;
 import com.talentEdge.service.JobPostsServices;
-import lombok.extern.java.Log;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -23,8 +21,8 @@ public class JobPostsController {
     }
 
     @PostMapping("/open")
-    public ResponseEntity<LogInResponse> openNewJobPost(@RequestBody JobPostsDTO jobPosts){
-        LogInResponse response = jobPostsServices.openNewJoPost(jobPosts);
+    public ResponseEntity<Response> openNewJobPost(@RequestBody JobPostsDTO jobPosts){
+        Response response = jobPostsServices.openNewJoPost(jobPosts);
         return ResponseEntity.ok(response);
     }
 
@@ -41,10 +39,10 @@ public class JobPostsController {
     }
 
     @PostMapping("/update")
-    public ResponseEntity<LogInResponse> updateExistingJobPost(@RequestBody JobPostsDTO jobPostsDTO){
+    public ResponseEntity<Response> updateExistingJobPost(@RequestBody JobPostsDTO jobPostsDTO){
         try {
 
-            LogInResponse response = jobPostsServices.updateJobPost(jobPostsDTO);
+            Response response = jobPostsServices.updateJobPost(jobPostsDTO);
             return ResponseEntity.ok(response);
 
         }catch (NoSuchElementException e){
@@ -55,12 +53,12 @@ public class JobPostsController {
     }
 
     @DeleteMapping("/remove/{id}")
-    public ResponseEntity<LogInResponse> removeJobPostbyId(@PathVariable String id){
+    public ResponseEntity<Response> removeJobPostbyId(@PathVariable String id){
 
         try {
 
-            LogInResponse logInResponse = jobPostsServices.removeJobPosting(id);
-            return ResponseEntity.ok(logInResponse);
+            Response response = jobPostsServices.removeJobPosting(id);
+            return ResponseEntity.ok(response);
 
         }catch (NoSuchElementException e){
             return ResponseEntity.noContent().build();

@@ -2,7 +2,7 @@ package com.talentEdge.controller;
 
 import com.talentEdge.dto.CompanyDTO;
 import com.talentEdge.dto.LogInRequest;
-import com.talentEdge.dto.LogInResponse;
+import com.talentEdge.dto.Response;
 import com.talentEdge.dto.RegistrationResponse;
 import com.talentEdge.model.CompanyEntity;
 import com.talentEdge.service.CompanyServices;
@@ -24,7 +24,7 @@ public class CompanyController {
     }
 
     @PostMapping("/login")
-    public ResponseEntity<LogInResponse> companyLogIn(@RequestBody LogInRequest request , HttpServletResponse response){
+    public ResponseEntity<Response> companyLogIn(@RequestBody LogInRequest request , HttpServletResponse response){
         return ResponseEntity.ok(companyServices.companyLogIn(request , response));
     }
 

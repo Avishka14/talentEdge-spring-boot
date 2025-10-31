@@ -1,7 +1,7 @@
 package com.talentEdge.service;
 
 import com.talentEdge.dto.JobPostsDTO;
-import com.talentEdge.dto.LogInResponse;
+import com.talentEdge.dto.Response;
 import com.talentEdge.model.CompanyEntity;
 import com.talentEdge.model.JobApproval;
 import com.talentEdge.model.JobPosts;
@@ -11,7 +11,6 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.NoSuchElementException;
-import java.util.Optional;
 import java.util.Random;
 import java.util.stream.Collectors;
 
@@ -26,20 +25,20 @@ public class JobPostsServices {
         this.companyRepository = companyRepository;
     }
 
-    public LogInResponse openNewJoPost(JobPostsDTO jobPosts){
+    public Response openNewJoPost(JobPostsDTO jobPosts){
 
-        LogInResponse response;
+        Response response;
 
         if(jobPosts.getJobType().isEmpty()){
-            return new LogInResponse("JobType not provided" , false);
+            return new Response("JobType not provided" , false);
         }else if(jobPosts.getTitle().isEmpty()){
-            return new LogInResponse("Job Title" , false);
+            return new Response("Job Title" , false);
         }else if(jobPosts.getJobDescription().isEmpty()){
-            return new LogInResponse("Job Description is not Provided" , false);
+            return new Response("Job Description is not Provided" , false);
         }else if(jobPosts.getContact().isEmpty()){
-            return new LogInResponse("Contact E-Mail is not Provided" , false);
+            return new Response("Contact E-Mail is not Provided" , false);
         }else if(jobPosts.getSalary().isEmpty()){
-            return new LogInResponse("Salary is not Provided" , false);
+            return new Response("Salary is not Provided" , false);
         }else{
 
            JobPosts model = new JobPosts();
@@ -69,10 +68,10 @@ public class JobPostsServices {
                model.setJobDescription(jobPosts.getJobDescription());
 
                jobPostsRepository.save(model);
-               response = new LogInResponse("Successfilly Opened Job Post Please wait for Approval" , true);
+               response = new Response("Successfilly Opened Job Post Please wait for Approval" , true);
 
            }else{
-               response = new LogInResponse("Error in Company Profile" , false);
+               response = new Response("Error in Company Profile" , false);
            }
 
 
@@ -104,7 +103,7 @@ public class JobPostsServices {
     }
 
 
-    public LogInResponse updateJobPost(JobPostsDTO jobPostsDTO){
+    public Response updateJobPost(JobPostsDTO jobPostsDTO){
 
         JobPosts jobPosts = jobPostsRepository.findById(jobPostsDTO.getId())
                 .orElseThrow(() -> new NoSuchElementException("Job post not found"));
@@ -121,18 +120,18 @@ public class JobPostsServices {
 
         jobPostsRepository.save(jobPosts);
 
-        return new LogInResponse("Job Post Successfully Updated" ,  true);
+        return new Response("Job Post Successfully Updated" ,  true);
 
 
     }
 
-    public LogInResponse removeJobPosting(String jobPostingId){
+    public Response removeJobPosting(String jobPostingId){
 
         JobPosts post = jobPostsRepository.findById(jobPostingId)
                 .orElseThrow(() -> new NoSuchElementException("Job Post not Found"));
 
         jobPostsRepository.delete(post);
-        return new LogInResponse("Success" , true);
+        return new Response("Success" , true);
 
     }
 
