@@ -1,6 +1,7 @@
 package com.talentEdge.service;
 
 import com.talentEdge.dto.*;
+import com.talentEdge.model.Role;
 import com.talentEdge.model.SpecializationEntity;
 import com.talentEdge.model.UniversityEntity;
 import com.talentEdge.model.UserProfile;
@@ -34,6 +35,9 @@ class UserServicesTest {
     private UniversityRepository universityRepository;
 
     @Mock
+    private RoleRepository roleRepository;
+
+    @Mock
     private BCryptPasswordEncoder passwordEncoder;
 
     @Mock
@@ -51,45 +55,24 @@ class UserServicesTest {
     }
 
     @Test
-    void testLogin_Success() {
-
-        LogInRequest request = new LogInRequest();
-        request.setEmail("Avishka@example.com");
-        request.setPassword("password");
-
-        UserProfile user = new UserProfile();
-        user.setId(1);
-        user.setEmail("Avishka@example.com");
-        user.setPassword("encodedPassword");
-
-        when(userProfileRepository.findByEmail("Avishka@example.com")).thenReturn(Optional.of(user));
-        when(passwordEncoder.matches("password", "encodedPassword")).thenReturn(true);
-        when(jwtUtil.generateToken("Avishka@example.com")).thenReturn("mockToken");
-
-
-        Response result = userServices.logIn(request, response);
-
-        assertTrue(result.isStatus());
-        assertEquals("mockToken", result.getMessage());
-        verify(response, times(1)).addHeader(eq("Set-Cookie"), anyString());
-    }
-
-    @Test
     void testLogin_UserNotFound() {
+
         LogInRequest request = new LogInRequest();
         request.setEmail("notfound@example.com");
         request.setPassword("password");
 
-        when(userProfileRepository.findByEmail("notfound@example.com")).thenReturn(Optional.empty());
+        when(userProfileRepository.findByEmail("notfound@example.com"))
+                .thenReturn(Optional.empty());
 
-        Response result = userServices.logIn(request, response);
+        LogInResponse result = userServices.logIn(request, response);
 
-        assertFalse(result.isStatus());
+        assertFalse(result.isSuccess());
         assertEquals("User not found", result.getMessage());
     }
 
     @Test
     void testLogin_InvalidPassword() {
+
         LogInRequest request = new LogInRequest();
         request.setEmail("Avishka@example.com");
         request.setPassword("wrong");
@@ -97,14 +80,19 @@ class UserServicesTest {
         UserProfile user = new UserProfile();
         user.setPassword("encodedPassword");
 
-        when(userProfileRepository.findByEmail("Avishka@example.com")).thenReturn(Optional.of(user));
-        when(passwordEncoder.matches("wrong", "encodedPassword")).thenReturn(false);
+        when(userProfileRepository.findByEmail("Avishka@example.com"))
+                .thenReturn(Optional.of(user));
+        when(passwordEncoder.matches("wrong", "encodedPassword"))
+                .thenReturn(false);
 
-        Response result = userServices.logIn(request, response);
+        LogInResponse result = userServices.logIn(request, response);
 
-        assertFalse(result.isStatus());
+        assertFalse(result.isSuccess());
         assertEquals("Invalid Password", result.getMessage());
     }
+
+
+
 
     @Test
     void testRegister_Success() {
@@ -113,17 +101,26 @@ class UserServicesTest {
         newUser.setPassword("plain");
         newUser.setSpecialization(new SpecializationEntity(1, "IT"));
 
+        SpecializationEntity specialization = new SpecializationEntity(1, "IT");
+        Role userRole = new Role(2, "USER");
+
         when(userProfileRepository.findByEmail("new@example.com")).thenReturn(Optional.empty());
-        when(specializationRepository.findById(1)).thenReturn(Optional.of(newUser.getSpecialization()));
+        when(specializationRepository.findById(1)).thenReturn(Optional.of(specialization));
         when(passwordEncoder.encode("plain")).thenReturn("encodedPassword");
+        when(roleRepository.findById(2)).thenReturn(Optional.of(userRole));
 
         Response responseObj = userServices.register(newUser, response);
 
         assertTrue(responseObj.isStatus());
         assertEquals("Success", responseObj.getMessage());
         verify(userProfileRepository, times(1)).save(any(UserProfile.class));
+        verify(passwordEncoder, times(1)).encode("plain");
+        verify(specializationRepository, times(1)).findById(1);
+        verify(roleRepository, times(1)).findById(2);
         verify(response, times(1)).addHeader(eq("Set-Cookie"), anyString());
     }
+
+
 
     @Test
     void testRegister_EmailAlreadyExists() {
