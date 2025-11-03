@@ -136,4 +136,33 @@ public class JobPostsServices {
     }
 
 
+    public List<JobPostsDTO> fetchAllJoPosts() {
+
+        List<JobPosts> jobPostsList = jobPostsRepository.findAll();
+
+        List<JobPosts> notApprovedPosts = jobPostsList.stream()
+                .filter(post -> post.getJobApproval() == null || post.getJobApproval().getId() != 2)
+                .toList();
+
+        if (notApprovedPosts.isEmpty()) {
+            throw new NoSuchElementException("No unapproved job posts found");
+        }
+
+        return notApprovedPosts.stream()
+                .map(post -> JobPostsDTO.builder()
+                        .id(post.getId())
+                        .title(post.getJobTitle())
+                        .jobDescription(post.getJobDescription())
+                        .jobType(post.getJobType())
+                        .contact(post.getContact())
+                        .salary(post.getSalary())
+                        .companyId(post.getCompany().getId())
+                        .approvalId(post.getJobApproval() == null ? null : post.getJobApproval().getId())
+                        .build()
+                ).collect(Collectors.toList());
+    }
+
+
+
+
 }

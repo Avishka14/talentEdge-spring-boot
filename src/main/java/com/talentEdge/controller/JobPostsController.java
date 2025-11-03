@@ -66,5 +66,15 @@ public class JobPostsController {
 
     }
 
+    @GetMapping("/fetchall")
+    public ResponseEntity<List<JobPostsDTO>> fetchAllJobPosts() {
+
+        List<JobPostsDTO> jobPosts = jobPostsServices.fetchAllJoPosts();
+
+        return ResponseEntity.ok(jobPosts);
+    }
+
+
+
 
 }
