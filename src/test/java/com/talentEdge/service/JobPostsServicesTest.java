@@ -136,4 +136,86 @@ class JobPostsServicesTest {
         when(jobPostsRepository.findById("JBPST: 9999")).thenReturn(Optional.empty());
         assertThrows(NoSuchElementException.class, () -> jobPostsServices.removeJobPosting("JBPST: 9999"));
     }
+
+    @Test
+    void testFetchAllJobPosts_ReturnsUnapprovedPosts() {
+        CompanyEntity company = new CompanyEntity();
+        company.setId(1);
+
+        JobApproval approved = new JobApproval();
+        approved.setId(2);
+
+        JobApproval pending = new JobApproval();
+        pending.setId(1);
+
+        JobPosts unapprovedPost = new JobPosts();
+        unapprovedPost.setId("POST_001");
+        unapprovedPost.setJobTitle("Backend Dev");
+        unapprovedPost.setJobDescription("Java Spring");
+        unapprovedPost.setJobType("Remote");
+        unapprovedPost.setSalary("80000");
+        unapprovedPost.setContact("hr@test.com");
+        unapprovedPost.setCompany(company);
+        unapprovedPost.setJobApproval(pending);
+
+        JobPosts approvedPost = new JobPosts();
+        approvedPost.setId("POST_002");
+        approvedPost.setJobApproval(approved);
+        approvedPost.setCompany(company);
+
+        when(jobPostsRepository.findAll()).thenReturn(List.of(unapprovedPost, approvedPost));
+
+        List<JobPostsDTO> result = jobPostsServices.fetchAllJoPosts();
+
+        assertEquals(1, result.size());
+        assertEquals("Backend Dev", result.get(0).getTitle());
+        assertNotEquals(2, result.get(0).getApprovalId());
+    }
+
+    @Test
+    void testFetchAllJobPosts_NoUnapproved_ThrowsException() {
+        JobApproval approved = new JobApproval();
+        approved.setId(2);
+
+        JobPosts post = new JobPosts();
+        post.setJobApproval(approved);
+
+        when(jobPostsRepository.findAll()).thenReturn(List.of(post));
+
+        assertThrows(NoSuchElementException.class, () -> jobPostsServices.fetchAllJoPosts());
+    }
+
+    @Test
+    void testApproveJobPosting_Success() {
+        JobPosts post = new JobPosts();
+        post.setId("POST_123");
+
+        when(jobPostsRepository.findById("POST_123")).thenReturn(Optional.of(post));
+
+        Response res = jobPostsServices.approveJobPosting("POST_123");
+
+        assertTrue(res.isStatus());
+        assertEquals("Approval Success", res.getMessage());
+        assertEquals(2, post.getJobApproval().getId());
+        verify(jobPostsRepository, times(1)).save(post);
+    }
+
+    @Test
+    void testDeclineJobPosting_Success() {
+        JobPosts post = new JobPosts();
+        post.setId("POST_999");
+
+        when(jobPostsRepository.findById("POST_999")).thenReturn(Optional.of(post));
+
+        Response res = jobPostsServices.declineJobPost("POST_999");
+
+        assertTrue(res.isStatus());
+        assertEquals("Decline Success", res.getMessage());
+        assertEquals(3, post.getJobApproval().getId());
+        verify(jobPostsRepository, times(1)).save(post);
+    }
+
+
+
+
 }
