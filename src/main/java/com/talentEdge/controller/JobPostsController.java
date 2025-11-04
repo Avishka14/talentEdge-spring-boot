@@ -74,6 +74,20 @@ public class JobPostsController {
         return ResponseEntity.ok(jobPosts);
     }
 
+    @PostMapping("/approve/{id}")
+    public ResponseEntity<Response> approveJobPost(@PathVariable String id){
+        try {
+
+            Response response = jobPostsServices.approveJobPosting(id);
+            return ResponseEntity.ok(response);
+
+        }catch (NoSuchElementException e){
+            return ResponseEntity.noContent().build();
+        }catch (Exception e){
+            return ResponseEntity.internalServerError().build();
+        }
+    }
+
 
 
 

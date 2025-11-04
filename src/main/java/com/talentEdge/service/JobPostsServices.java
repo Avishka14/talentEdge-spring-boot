@@ -162,6 +162,20 @@ public class JobPostsServices {
                 ).collect(Collectors.toList());
     }
 
+    public Response approveJobPosting(String id){
+
+        JobPosts jobPosts = jobPostsRepository.findById(id)
+                .orElseThrow(() -> new NoSuchElementException("Job Posting not found"));
+
+        JobApproval approval = new JobApproval();
+        approval.setId(2);
+        jobPosts.setJobApproval(approval);
+        jobPostsRepository.save(jobPosts);
+
+        return new Response("Update Success" , true);
+
+    }
+
 
 
 
