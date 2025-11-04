@@ -88,6 +88,20 @@ public class JobPostsController {
         }
     }
 
+    @PostMapping("/decline/{id}")
+    public ResponseEntity<Response> declineJobPost(@PathVariable String id){
+        try {
+
+            Response response = jobPostsServices.declineJobPost(id);
+            return ResponseEntity.ok(response);
+
+        }catch (NoSuchElementException e){
+            return ResponseEntity.noContent().build();
+        }catch (Exception e){
+            return ResponseEntity.internalServerError().build();
+        }
+    }
+
 
 
 
