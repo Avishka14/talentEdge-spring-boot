@@ -172,7 +172,21 @@ public class JobPostsServices {
         jobPosts.setJobApproval(approval);
         jobPostsRepository.save(jobPosts);
 
-        return new Response("Update Success" , true);
+        return new Response("Approval Success" , true);
+
+    }
+
+    public Response declineJobPost(String id){
+
+        JobPosts jobPosts = jobPostsRepository.findById(id)
+                .orElseThrow(() -> new NoSuchElementException("Job Posting not found"));
+
+        JobApproval approval = new JobApproval();
+        approval.setId(3);
+        jobPosts.setJobApproval(approval);
+        jobPostsRepository.save(jobPosts);
+
+        return new Response("Decline Success" , true);
 
     }
 
