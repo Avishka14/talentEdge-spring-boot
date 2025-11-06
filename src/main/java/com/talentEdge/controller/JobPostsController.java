@@ -69,9 +69,17 @@ public class JobPostsController {
     @GetMapping("/fetchall")
     public ResponseEntity<List<JobPostsDTO>> fetchAllJobPosts() {
 
-        List<JobPostsDTO> jobPosts = jobPostsServices.fetchAllJoPosts();
+        try{
+            List<JobPostsDTO> jobPosts = jobPostsServices.fetchAllJoPosts();
+            return ResponseEntity.ok(jobPosts);
 
-        return ResponseEntity.ok(jobPosts);
+        }catch (NoSuchElementException n){
+             return ResponseEntity.noContent().build();
+        } catch (Exception e) {
+            return ResponseEntity.internalServerError().build();
+        }
+
+
     }
 
     @PostMapping("/approve/{id}")

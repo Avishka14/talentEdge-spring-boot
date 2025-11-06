@@ -141,7 +141,7 @@ public class JobPostsServices {
         List<JobPosts> jobPostsList = jobPostsRepository.findAll();
 
         List<JobPosts> notApprovedPosts = jobPostsList.stream()
-                .filter(post -> post.getJobApproval() == null || post.getJobApproval().getId() != 2)
+                .filter(post -> post.getJobApproval() == null || post.getJobApproval().getId() == 1)
                 .toList();
 
         if (notApprovedPosts.isEmpty()) {
