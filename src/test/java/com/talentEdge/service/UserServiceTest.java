@@ -29,6 +29,9 @@ class UserServicesTest {
     private UserProfileRepository userProfileRepository;
 
     @Mock
+    private ProfilephotoRepository profilephotoRepository;
+
+    @Mock
     private SpecializationRepository specializationRepository;
 
     @Mock
@@ -149,6 +152,7 @@ class UserServicesTest {
 
     @Test
     void testFetchUserInfoById_Success() {
+        // Arrange
         UserProfile user = new UserProfile();
         user.setId(1);
         user.setFirstName("Avishka");
@@ -166,13 +170,18 @@ class UserServicesTest {
 
         UserProfileDTO result = userServices.fetchUserInfoById(1);
 
-        assertNotNull(result);
+        assertNotNull(result, "Result should not be null");
         assertEquals("Avishka", result.getFirstName());
         assertEquals("Chamod", result.getLastName());
         assertEquals("Software Engineering", result.getSpecialization());
         assertEquals("avishka@example.com", result.getEmail());
+        assertEquals("Colombo", result.getLocation());
+        assertEquals("Java Developer", result.getAbout());
+        assertEquals(LocalDate.of(2024, 1, 10), result.getJoinedDate());
+
         verify(userProfileRepository, times(1)).findById(1);
     }
+
 
     @Test
     void testFetchUserInfoById_UserNotFound() {
