@@ -6,6 +6,7 @@ import com.talentEdge.service.UserServices;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.NoSuchElementException;
 
@@ -159,46 +160,14 @@ public class UserController {
 
     }
 
+    @PostMapping("/uploadProfile")
+    public ResponseEntity<UserProfilePhotoDTO> uploadProfilePhoto(
+            @RequestParam("file") MultipartFile file,
+            @RequestParam("userId") Integer userId) {
 
-    @PostMapping("/profilepic/save")
-    public ResponseEntity<UserProfilePhotoDTO> saveUserProfileImage(@RequestBody UserProfilePhotoDTO userProfilePhotoDTO){
-        try {
-
-            UserProfilePhotoDTO userProfilePhotoDTO1 = userServices.saveUserProfilePhoto(userProfilePhotoDTO);
-            return ResponseEntity.ok(userProfilePhotoDTO1);
-
-        }catch (NoSuchElementException n){
-            return ResponseEntity.noContent().build();
-        }catch (Exception e){
-            return ResponseEntity.internalServerError().build();
-        }
+        UserProfilePhotoDTO updatedProfile = userServices.uploadAndSaveProfilePhoto(file, userId);
+        return ResponseEntity.ok(updatedProfile);
     }
-
-    @PutMapping("/profilepic/update")
-    public  ResponseEntity<UserProfilePhotoDTO> updateUserPRofileImage(@RequestBody UserProfilePhotoDTO userProfilePhotoDTO){
-        try {
-
-            UserProfilePhotoDTO userProfile = userServices.updateUserProfilePhoto(userProfilePhotoDTO);
-            return ResponseEntity.ok(userProfile);
-
-        }catch (NoSuchElementException n){
-            return ResponseEntity.noContent().build();
-        }catch (Exception e){
-            return ResponseEntity.internalServerError().build();
-        }
-    }
-
-    @DeleteMapping("/profilepic/remove/{id}")
-    public ResponseEntity<String> deleteProfilePhoto(@PathVariable Integer id) {
-        boolean deleted = userServices.deleteUserProfilePhoto(id);
-        if (deleted) {
-            return ResponseEntity.ok("Profile photo deleted successfully");
-        } else {
-            return ResponseEntity.internalServerError().build();
-        }
-    }
-
-
 
 
 

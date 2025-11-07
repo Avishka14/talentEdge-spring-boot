@@ -8,10 +8,13 @@ import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.http.ResponseCookie;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.time.LocalDate;
 import java.util.*;
 import java.util.stream.Collectors;
+import java.io.File;
 
 @Service
 public class UserServices {
@@ -23,6 +26,8 @@ public class UserServices {
     private final UniversityRepository universityRepository;
     private final ProfilephotoRepository profilephotoRepository;
     private final RoleRepository roleRepository;
+
+    private static final String UPLOAD_DIR = "uploads/profile_photos/";
 
     public UserServices(UserProfileRepository userProfileRepository, BCryptPasswordEncoder passwordEncoder, JwtUtil jwtUtil, SpecializationRepository specializationRepository, UniversityRepository universityRepository, ProfilephotoRepository profilephotoRepository, RoleRepository roleRepository) {
         this.userProfileRepository = userProfileRepository;
@@ -110,6 +115,10 @@ public class UserServices {
         UserProfile user = userProfileRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("User id is invalid"));
 
+        String photoUrl = profilephotoRepository.findFirstByUserProfile_Id(id)
+                .map(ProfilePhoto::getPhotoUrl)
+                .orElse(null);
+
         UserProfileDTO dto = new UserProfileDTO();
         dto.setId(user.getId());
         dto.setFirstName(user.getFirstName());
@@ -120,6 +129,7 @@ public class UserServices {
         dto.setSkills(user.getSkills());
         dto.setLocation(user.getLocation());
         dto.setAbout(user.getAbout());
+        dto.setImage(photoUrl);
         return dto;
 
     }
@@ -250,40 +260,48 @@ public class UserServices {
 
     }
 
-    public UserProfilePhotoDTO saveUserProfilePhoto(UserProfilePhotoDTO userProfilePhotoDTO){
 
-        UserProfile userProfile = userProfileRepository.findById(userProfilePhotoDTO.getUserId())
-                .orElseThrow(() -> new NoSuchElementException("User Not Found"));
+    public UserProfilePhotoDTO uploadAndSaveProfilePhoto(MultipartFile file, Integer userId) {
+        try {
 
-        ProfilePhoto profilePhoto =  ProfilePhoto.builder()
-                .photoUrl(userProfilePhotoDTO.getImgUrl())
-                .userProfile(userProfile).build();
+            String uploadDir = System.getProperty("user.dir") + File.separator + "uploads" + File.separator + "profile_photos";
 
-           profilephotoRepository.save(profilePhoto);
-           return userProfilePhotoDTO;
+            File directory = new File(uploadDir);
+            if (!directory.exists()) {
+                boolean created = directory.mkdirs();
+                if (!created) throw new IOException("Failed to create upload directory");
+            }
 
-    }
+            String uniqueFileName = UUID.randomUUID() + "_" + file.getOriginalFilename();
+            String filePath = uploadDir + File.separator + uniqueFileName;
 
-    public UserProfilePhotoDTO updateUserProfilePhoto(UserProfilePhotoDTO userProfilePhotoDTO){
+            file.transferTo(new File(filePath));
 
-        ProfilePhoto profilePhoto = profilephotoRepository.findFirstByUserProfile_Id(userProfilePhotoDTO.getUserId())
-                .orElseThrow(() -> new NoSuchElementException("Profile Photo not Found"));
+            String imgUrl = "/uploads/profile_photos/" + uniqueFileName;
 
-        profilePhoto.setPhotoUrl(userProfilePhotoDTO.getImgUrl());
+            ProfilePhoto profilePhoto = profilephotoRepository.findFirstByUserProfile_Id(userId)
+                    .orElseGet(() -> {
+                        ProfilePhoto newPhoto = new ProfilePhoto();
+                        UserProfile userProfile = userProfileRepository.findById(userId)
+                                .orElseThrow(() -> new NoSuchElementException("User not found"));
+                        newPhoto.setUserProfile(userProfile);
+                        return newPhoto;
+                    });
 
-        profilephotoRepository.save(profilePhoto);
-        return userProfilePhotoDTO;
 
-    }
+            profilePhoto.setPhotoUrl(imgUrl);
+            profilephotoRepository.save(profilePhoto);
 
-    public boolean deleteUserProfilePhoto(Integer userId) {
-        Optional<ProfilePhoto> photoOpt = profilephotoRepository.findFirstByUserProfile_Id(userId);
-        if (photoOpt.isPresent()) {
-            profilephotoRepository.delete(photoOpt.get());
-            return true;
+            return UserProfilePhotoDTO.builder()
+                    .userId(userId)
+                    .imgUrl(imgUrl)
+                    .build();
+
+        } catch (IOException e) {
+            throw new RuntimeException("Error saving profile photo", e);
         }
-        return false;
     }
+
 
 
 

@@ -25,8 +25,8 @@ public class SecurityConfig {
                 .csrf(csrf -> csrf.disable())
                 .cors(cors -> cors.configurationSource(request -> {
                     var corsConfig = new org.springframework.web.cors.CorsConfiguration();
-                    corsConfig.setAllowedOrigins(List.of("http://localhost:5173")); // frontend origin
-                    corsConfig.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE"));
+                    corsConfig.setAllowedOrigins(List.of("http://localhost:5173"));
+                    corsConfig.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
                     corsConfig.setAllowCredentials(true);
                     corsConfig.setAllowedHeaders(List.of("*"));
                     return corsConfig;
@@ -37,7 +37,8 @@ public class SecurityConfig {
                                 "/api/specializations/getall",
                                 "/api/universities/**",
                                 "/api/company/**",
-                                "/api/jobposts/**"
+                                "/api/jobposts/**",
+                                "/uploads/**"
                         ).permitAll()
                         .anyRequest().authenticated()
                 )
@@ -46,10 +47,8 @@ public class SecurityConfig {
         return http.build();
     }
 
-
     @Bean
     public RestTemplate restTemplate() {
         return new RestTemplate();
     }
-
 }

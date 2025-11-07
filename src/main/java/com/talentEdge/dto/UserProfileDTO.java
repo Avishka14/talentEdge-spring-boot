@@ -33,5 +33,7 @@ public class UserProfileDTO {
     private LocalDate joinedDate;
     private String about;
 
+    private String image;
+
 
 }
