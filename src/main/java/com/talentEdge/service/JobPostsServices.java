@@ -7,6 +7,7 @@ import com.talentEdge.model.JobApproval;
 import com.talentEdge.model.JobPosts;
 import com.talentEdge.repo.CompanyRepository;
 import com.talentEdge.repo.JobPostsRepository;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -15,6 +16,7 @@ import java.util.Random;
 import java.util.stream.Collectors;
 
 @Service
+@Slf4j
 public class JobPostsServices {
 
     private final JobPostsRepository jobPostsRepository;
@@ -25,65 +27,64 @@ public class JobPostsServices {
         this.companyRepository = companyRepository;
     }
 
-    public Response openNewJoPost(JobPostsDTO jobPosts){
 
-        Response response;
+    public Response openNewJoPost(JobPostsDTO jobPosts) {
 
-        if(jobPosts.getJobType().isEmpty()){
-            return new Response("JobType not provided" , false);
-        }else if(jobPosts.getTitle().isEmpty()){
-            return new Response("Job Title" , false);
-        }else if(jobPosts.getJobDescription().isEmpty()){
-            return new Response("Job Description is not Provided" , false);
-        }else if(jobPosts.getContact().isEmpty()){
-            return new Response("Contact E-Mail is not Provided" , false);
-        }else if(jobPosts.getSalary().isEmpty()){
-            return new Response("Salary is not Provided" , false);
-        }else{
+        log.info("Attempt to create new job post for company ID {}", jobPosts.getCompanyId());
 
-           JobPosts model = new JobPosts();
-           CompanyEntity company = companyRepository.findById(jobPosts.getCompanyId())
-                   .orElseThrow(() -> new NoSuchElementException("Company Not Found"));
+        if (jobPosts.getJobType().isEmpty()) {
+            return new Response("JobType not provided", false);
+        } else if (jobPosts.getTitle().isEmpty()) {
+            return new Response("Job Title", false);
+        } else if (jobPosts.getJobDescription().isEmpty()) {
+            return new Response("Job Description is not Provided", false);
+        } else if (jobPosts.getContact().isEmpty()) {
+            return new Response("Contact E-Mail is not Provided", false);
+        } else if (jobPosts.getSalary().isEmpty()) {
+            return new Response("Salary is not Provided", false);
+        } else {
+
+            CompanyEntity company = companyRepository.findById(jobPosts.getCompanyId())
+                    .orElseThrow(() -> new NoSuchElementException("Company Not Found"));
 
             Random random = new Random();
             int number;
             String id;
             do {
                 number = 1000 + random.nextInt(9000);
-                id = "JBPST: " + String.valueOf(number);
+                id = "JBPST: " + number;
             } while (jobPostsRepository.existsById(id));
 
             JobApproval approval = new JobApproval();
             approval.setId(1);
 
-           if(company != null){
+            JobPosts model = new JobPosts();
+            model.setId(id);
+            model.setCompany(company);
+            model.setJobTitle(jobPosts.getTitle());
+            model.setSalary(jobPosts.getSalary());
+            model.setJobType(jobPosts.getJobType());
+            model.setContact(jobPosts.getContact());
+            model.setJobApproval(approval);
+            model.setJobDescription(jobPosts.getJobDescription());
 
-               model.setId(id);
-               model.setCompany(company);
-               model.setJobTitle(jobPosts.getTitle());
-               model.setSalary(jobPosts.getSalary());
-               model.setJobType(jobPosts.getJobType());
-               model.setContact(jobPosts.getContact());
-               model.setJobApproval(approval);
-               model.setJobDescription(jobPosts.getJobDescription());
+            jobPostsRepository.save(model);
 
-               jobPostsRepository.save(model);
-               response = new Response("Successfilly Opened Job Post Please wait for Approval" , true);
+            log.info("New job post {} created for company {}", id, company.getEmail());
 
-           }else{
-               response = new Response("Error in Company Profile" , false);
-           }
-
-
+            return new Response("Successfilly Opened Job Post Please wait for Approval", true);
         }
-        return response;
-
     }
 
+
     public List<JobPostsDTO> fetchJobOpeningsByID(Integer companyId) {
+
+        log.info("Fetching job posts for company ID {}", companyId);
+
         List<JobPosts> jobPostsList = jobPostsRepository.findByCompany_Id(companyId);
 
         if (jobPostsList.isEmpty()) {
+            log.warn("No job posts found for company ID {}", companyId);
             throw new NoSuchElementException("No job postings found for company ID: " + companyId);
         }
 
@@ -97,46 +98,60 @@ public class JobPostsServices {
                         .salary(post.getSalary())
                         .companyId(post.getCompany().getId())
                         .approvalId(post.getJobApproval().getId())
-                        .build()
-                )
+                        .build())
                 .collect(Collectors.toList());
     }
 
 
-    public Response updateJobPost(JobPostsDTO jobPostsDTO){
+    public Response updateJobPost(JobPostsDTO jobPostsDTO) {
+
+        log.info("Updating job post {}", jobPostsDTO.getId());
 
         JobPosts jobPosts = jobPostsRepository.findById(jobPostsDTO.getId())
-                .orElseThrow(() -> new NoSuchElementException("Job post not found"));
+                .orElseThrow(() -> {
+                    log.error("Job post {} not found", jobPostsDTO.getId());
+                    return new NoSuchElementException("Job post not found");
+                });
 
         JobApproval approval = new JobApproval();
         approval.setId(1);
 
-        if(jobPostsDTO.getTitle() != null) jobPosts.setJobTitle(jobPostsDTO.getTitle());
-        if(jobPostsDTO.getJobType() != null) jobPosts.setJobType(jobPostsDTO.getJobType());
-        if(jobPostsDTO.getJobDescription() != null) jobPosts.setJobDescription(jobPostsDTO.getJobDescription());
-        if(jobPostsDTO.getSalary() != null) jobPosts.setSalary(jobPostsDTO.getSalary());
-        if(jobPostsDTO.getContact() != null) jobPosts.setContact(jobPostsDTO.getContact());
+        if (jobPostsDTO.getTitle() != null) jobPosts.setJobTitle(jobPostsDTO.getTitle());
+        if (jobPostsDTO.getJobType() != null) jobPosts.setJobType(jobPostsDTO.getJobType());
+        if (jobPostsDTO.getJobDescription() != null) jobPosts.setJobDescription(jobPostsDTO.getJobDescription());
+        if (jobPostsDTO.getSalary() != null) jobPosts.setSalary(jobPostsDTO.getSalary());
+        if (jobPostsDTO.getContact() != null) jobPosts.setContact(jobPostsDTO.getContact());
+
         jobPosts.setJobApproval(approval);
 
         jobPostsRepository.save(jobPosts);
 
-        return new Response("Job Post Successfully Updated" ,  true);
+        log.info("Job post {} updated successfully", jobPostsDTO.getId());
 
-
+        return new Response("Job Post Successfully Updated", true);
     }
 
-    public Response removeJobPosting(String jobPostingId){
+
+    public Response removeJobPosting(String jobPostingId) {
+
+        log.info("Attempt to remove job post {}", jobPostingId);
 
         JobPosts post = jobPostsRepository.findById(jobPostingId)
-                .orElseThrow(() -> new NoSuchElementException("Job Post not Found"));
+                .orElseThrow(() -> {
+                    log.error("Job post {} not found for removal", jobPostingId);
+                    return new NoSuchElementException("Job Post not Found");
+                });
 
         jobPostsRepository.delete(post);
-        return new Response("Success" , true);
 
+        log.info("Job post {} removed successfully", jobPostingId);
+
+        return new Response("Success", true);
     }
 
-
     public List<JobPostsDTO> fetchAllJoPosts() {
+
+        log.info("Fetching all unapproved job posts");
 
         List<JobPosts> jobPostsList = jobPostsRepository.findAll();
 
@@ -145,6 +160,7 @@ public class JobPostsServices {
                 .toList();
 
         if (notApprovedPosts.isEmpty()) {
+            log.warn("No unapproved job posts found");
             throw new NoSuchElementException("No unapproved job posts found");
         }
 
@@ -162,35 +178,47 @@ public class JobPostsServices {
                 ).collect(Collectors.toList());
     }
 
-    public Response approveJobPosting(String id){
+
+    public Response approveJobPosting(String id) {
+
+        log.info("Approving job post {}", id);
 
         JobPosts jobPosts = jobPostsRepository.findById(id)
-                .orElseThrow(() -> new NoSuchElementException("Job Posting not found"));
+                .orElseThrow(() -> {
+                    log.error("Job post {} not found for approval", id);
+                    return new NoSuchElementException("Job Posting not found");
+                });
 
         JobApproval approval = new JobApproval();
         approval.setId(2);
+
         jobPosts.setJobApproval(approval);
         jobPostsRepository.save(jobPosts);
 
-        return new Response("Approval Success" , true);
+        log.info("Job post {} approved", id);
 
+        return new Response("Approval Success", true);
     }
 
-    public Response declineJobPost(String id){
+
+    public Response declineJobPost(String id) {
+
+        log.info("Declining job post {}", id);
 
         JobPosts jobPosts = jobPostsRepository.findById(id)
-                .orElseThrow(() -> new NoSuchElementException("Job Posting not found"));
+                .orElseThrow(() -> {
+                    log.error("Job post {} not found for decline", id);
+                    return new NoSuchElementException("Job Posting not found");
+                });
 
         JobApproval approval = new JobApproval();
         approval.setId(3);
+
         jobPosts.setJobApproval(approval);
         jobPostsRepository.save(jobPosts);
 
-        return new Response("Decline Success" , true);
+        log.info("Job post {} declined", id);
 
+        return new Response("Decline Success", true);
     }
-
-
-
-
 }
